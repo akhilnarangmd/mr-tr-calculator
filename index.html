@@ -26,16 +26,22 @@
     .main-nav {
       background: white; border-bottom: 2px solid #e2e8f0;
       display: flex; justify-content: center; overflow-x: auto;
+      padding: 16px 20px; gap: 12px;
     }
     .main-nav button {
-      padding: 16px 36px; border: none; background: transparent;
-      font-size: 1rem; font-weight: 700; color: #a0aec0; letter-spacing: 0.01em;
+      padding: 12px 32px; border: 2px solid #cbd5e0;
+      background: white; border-radius: 8px;
+      font-size: 1rem; font-weight: 700; color: #718096;
       cursor: pointer; white-space: nowrap;
-      border-bottom: 3px solid transparent; margin-bottom: -2px;
-      transition: all 0.15s;
+      transition: all 0.2s; letter-spacing: 0.01em;
     }
-    .main-nav button.active { color: #1a365d; border-bottom-color: #2b6cb0; border-bottom-width: 3px; }
-    .main-nav button:hover:not(.active) { color: #4a5568; background: #f7fafc; }
+    .main-nav button.active {
+      background: #1a365d; border-color: #1a365d;
+      color: white; box-shadow: 0 2px 8px rgba(26,54,93,0.25);
+    }
+    .main-nav button:hover:not(.active) {
+      border-color: #2b6cb0; color: #2b6cb0; background: #ebf8ff;
+    }
 
     .content { max-width: 1000px; margin: 0 auto; padding: 24px 16px 60px; }
 
