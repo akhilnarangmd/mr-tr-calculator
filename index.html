@@ -4,1364 +4,799 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MR & TR Quantification Calculator</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
-    :root {
-      --bg: #0a0f1a;
-      --surface: #111827;
-      --surface2: #1a2235;
-      --border: #1e2d45;
-      --accent-mr: #3b9eff;
-      --accent-tr: #22d3a0;
-      --accent-warn: #f59e0b;
-      --text: #e8edf5;
-      --text-muted: #6b7d99;
-      --text-dim: #3a4d68;
-      --mild: #22d3a0;
-      --moderate: #f59e0b;
-      --severe: #ef4444;
-      --radius: 12px;
-      --radius-sm: 8px;
-    }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f8;
+      color: #1a202c;
       min-height: 100vh;
       line-height: 1.6;
     }
 
-    /* Background grid */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image:
-        linear-gradient(rgba(59,158,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(59,158,255,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .wrapper { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 20px 60px; }
-
-    /* Header */
     header {
-      text-align: center;
-      padding: 48px 0 36px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 40px;
+      background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
+      color: white; padding: 24px 20px; text-align: center;
     }
+    header .icon { font-size: 2rem; margin-bottom: 6px; }
+    header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
+    header p { font-size: 0.85rem; opacity: 0.85; }
 
-    .badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(59,158,255,0.1); border: 1px solid rgba(59,158,255,0.25);
-      color: var(--accent-mr); padding: 4px 14px; border-radius: 999px;
-      font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em;
-      text-transform: uppercase; margin-bottom: 18px;
+    .main-nav {
+      background: white; border-bottom: 2px solid #e2e8f0;
+      display: flex; overflow-x: auto;
     }
-
-    h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(2rem, 5vw, 3.4rem);
-      color: var(--text);
-      line-height: 1.15;
-      margin-bottom: 10px;
+    .main-nav button {
+      padding: 14px 28px; border: none; background: transparent;
+      font-size: 0.88rem; font-weight: 600; color: #718096;
+      cursor: pointer; white-space: nowrap;
+      border-bottom: 3px solid transparent; margin-bottom: -2px;
+      transition: all 0.15s;
     }
+    .main-nav button.active { color: #2b6cb0; border-bottom-color: #2b6cb0; }
+    .main-nav button:hover:not(.active) { color: #4a5568; background: #f7fafc; }
 
-    h1 span { color: var(--accent-mr); font-style: italic; }
+    .content { max-width: 1000px; margin: 0 auto; padding: 24px 16px 60px; }
 
-    .subtitle {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      max-width: 560px;
-      margin: 0 auto;
-    }
-
-    /* Tabs */
-    .tabs {
-      display: flex; gap: 8px;
-      background: var(--surface); padding: 6px;
-      border-radius: var(--radius); border: 1px solid var(--border);
-      margin-bottom: 32px;
-    }
-
-    .tab-btn {
-      flex: 1; padding: 12px 20px; border: none; border-radius: var(--radius-sm);
-      background: transparent; color: var(--text-muted);
-      font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500;
-      cursor: pointer; transition: all 0.2s;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-
-    .tab-btn.active {
-      background: rgba(59,158,255,0.12); color: var(--accent-mr);
-      border: 1px solid rgba(59,158,255,0.3);
-    }
-
-    .tab-btn[data-tab="tr"].active {
-      background: rgba(34,211,160,0.12); color: var(--accent-tr);
-      border: 1px solid rgba(34,211,160,0.3);
-    }
-
-    .tab-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: currentColor; opacity: 0.7;
-    }
-
-    /* Section layout */
-    .section-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    @media (max-width: 700px) {
-      .section-grid { grid-template-columns: 1fr; }
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      transition: border-color 0.2s;
-    }
-
-    .card:hover { border-color: rgba(59,158,255,0.2); }
-
-    .card-title {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--text-muted);
-      margin-bottom: 16px;
-      display: flex; align-items: center; gap: 8px;
-    }
-
-    .card-title::after {
-      content: ''; flex: 1; height: 1px;
-      background: var(--border);
-    }
-
-    /* Method label */
-    .method-label {
-      font-size: 0.85rem; font-weight: 600; color: var(--accent-mr);
-      margin-bottom: 14px; padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .tr-color .method-label { color: var(--accent-tr); }
-
-    /* Input groups */
-    .input-row {
-      display: flex; align-items: center;
-      margin-bottom: 12px; gap: 10px;
-    }
-
-    .input-row label {
-      flex: 1; font-size: 0.82rem; color: var(--text-muted); line-height: 1.3;
-      min-width: 0;
-    }
-
-    .input-row label strong { display: block; color: var(--text); font-size: 0.85rem; }
-
-    .input-wrap {
-      display: flex; align-items: center; gap: 0;
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); overflow: hidden;
-      transition: border-color 0.2s;
-      flex-shrink: 0;
-    }
-
-    .input-wrap:focus-within { border-color: rgba(59,158,255,0.5); }
-
-    .tr-color .input-wrap:focus-within { border-color: rgba(34,211,160,0.5); }
-
-    input[type="number"] {
-      width: 90px; padding: 8px 10px;
-      background: transparent; border: none; outline: none;
-      color: var(--text); font-family: 'DM Mono', monospace;
-      font-size: 0.9rem;
-    }
-
-    input[type="number"]::placeholder { color: var(--text-dim); }
-
-    .unit {
-      padding: 8px 10px; font-family: 'DM Mono', monospace;
-      font-size: 0.72rem; color: var(--text-muted);
-      background: rgba(255,255,255,0.03); border-left: 1px solid var(--border);
-      white-space: nowrap;
-    }
-
-    /* Results */
-    .results-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-
-    .results-title {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.2rem; margin-bottom: 20px;
-      color: var(--text);
-    }
-
-    .result-row {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      align-items: center; gap: 16px;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .result-row:last-child { border-bottom: none; }
-
-    .result-name { font-size: 0.85rem; color: var(--text-muted); }
-    .result-name strong { display: block; color: var(--text); font-size: 0.9rem; }
-
-    .result-value {
-      font-family: 'DM Mono', monospace;
-      font-size: 1.1rem; font-weight: 500;
-      color: var(--text); text-align: right; white-space: nowrap;
-    }
-
-    .result-value .val-unit {
-      font-size: 0.72rem; color: var(--text-muted); margin-left: 3px;
-    }
-
-    .severity-pill {
-      padding: 4px 12px; border-radius: 999px;
-      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em;
-      text-transform: uppercase; white-space: nowrap;
-    }
-
-    .sev-mild { background: rgba(34,211,160,0.15); color: var(--mild); border: 1px solid rgba(34,211,160,0.3); }
-    .sev-moderate { background: rgba(245,158,11,0.15); color: var(--moderate); border: 1px solid rgba(245,158,11,0.3); }
-    .sev-severe { background: rgba(239,68,68,0.15); color: var(--severe); border: 1px solid rgba(239,68,68,0.3); }
-    .sev-na { background: rgba(107,125,153,0.15); color: var(--text-muted); border: 1px solid var(--border); }
-
-    /* Summary box */
-    .summary-box {
-      margin-top: 20px; padding: 20px;
-      border-radius: var(--radius);
-      border: 2px solid var(--border);
-      background: var(--surface2);
-    }
-
-    .summary-box.mild { border-color: rgba(34,211,160,0.4); }
-    .summary-box.moderate { border-color: rgba(245,158,11,0.4); }
-    .summary-box.severe { border-color: rgba(239,68,68,0.4); }
-
-    .summary-label {
-      font-family: 'DM Mono', monospace; font-size: 10px;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--text-muted); margin-bottom: 6px;
-    }
-
-    .summary-grade {
-      font-family: 'DM Serif Display', serif;
-      font-size: 2.2rem; line-height: 1;
-    }
-
-    .summary-grade.mild { color: var(--mild); }
-    .summary-grade.moderate { color: var(--moderate); }
-    .summary-grade.severe { color: var(--severe); }
-    .summary-grade.na { color: var(--text-muted); }
-
-    .summary-note { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; }
-
-    /* Cutoffs reference */
-    .cutoffs-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    @media (max-width: 700px) {
-      .cutoffs-grid { grid-template-columns: 1fr; }
-    }
-
-    .cutoff-col {
-      background: var(--surface2); border-radius: var(--radius-sm);
-      padding: 14px; border: 1px solid var(--border);
-    }
-
-    .cutoff-col-head {
-      font-size: 0.7rem; font-weight: 700;
-      letter-spacing: 0.08em; text-transform: uppercase;
-      margin-bottom: 10px; padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .cutoff-col-head.mild { color: var(--mild); }
-    .cutoff-col-head.moderate { color: var(--moderate); }
-    .cutoff-col-head.severe { color: var(--severe); }
-
-    .cutoff-item { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 5px; }
-    .cutoff-item strong { color: var(--text); }
-
-    /* Formula box */
-    .formula-box {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-left: 3px solid var(--accent-mr);
-      border-radius: var(--radius-sm); padding: 14px;
-      margin-top: 14px;
-    }
-
-    .tr-color .formula-box { border-left-color: var(--accent-tr); }
-
-    .formula-text {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.78rem; color: var(--text-muted);
-      line-height: 1.6;
-    }
-
-    .formula-text strong { color: var(--accent-mr); }
-    .tr-color .formula-text strong { color: var(--accent-tr); }
-
-    /* Calc button */
-    .calc-btn {
-      width: 100%; padding: 14px;
-      background: linear-gradient(135deg, rgba(59,158,255,0.2), rgba(59,158,255,0.08));
-      border: 1px solid rgba(59,158,255,0.4);
-      border-radius: var(--radius-sm); color: var(--accent-mr);
-      font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600;
-      cursor: pointer; transition: all 0.2s;
-      letter-spacing: 0.02em; margin-top: 16px;
-    }
-
-    .calc-btn:hover {
-      background: linear-gradient(135deg, rgba(59,158,255,0.3), rgba(59,158,255,0.12));
-      border-color: rgba(59,158,255,0.7);
-    }
-
-    .calc-btn.tr-btn {
-      background: linear-gradient(135deg, rgba(34,211,160,0.2), rgba(34,211,160,0.08));
-      border-color: rgba(34,211,160,0.4); color: var(--accent-tr);
-    }
-
-    .calc-btn.tr-btn:hover {
-      background: linear-gradient(135deg, rgba(34,211,160,0.3), rgba(34,211,160,0.12));
-      border-color: rgba(34,211,160,0.7);
-    }
-
-    .clear-btn {
-      width: 100%; padding: 9px;
-      background: transparent; border: 1px solid var(--border);
-      border-radius: var(--radius-sm); color: var(--text-muted);
-      font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
-      cursor: pointer; transition: all 0.2s; margin-top: 6px;
-    }
-
-    .clear-btn:hover { border-color: var(--text-muted); color: var(--text); }
-
-    /* Method sub-tabs */
-    .method-tabs {
-      display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap;
-    }
-
-    .method-tab {
-      padding: 6px 14px; border-radius: var(--radius-sm);
-      border: 1px solid var(--border); background: transparent;
-      color: var(--text-muted); font-size: 0.8rem;
-      cursor: pointer; transition: all 0.2s;
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    .method-tab.active {
-      background: rgba(59,158,255,0.1); color: var(--accent-mr);
-      border-color: rgba(59,158,255,0.3);
-    }
-
-    .tr-color .method-tab.active {
-      background: rgba(34,211,160,0.1); color: var(--accent-tr);
-      border-color: rgba(34,211,160,0.3);
-    }
-
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
     .method-section { display: none; }
     .method-section.active { display: block; }
 
-    /* Tab panel */
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
+    .method-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .method-nav button {
+      padding: 7px 16px; border-radius: 20px;
+      border: 1.5px solid #cbd5e0; background: white;
+      font-size: 0.82rem; font-weight: 500; color: #4a5568;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .method-nav button.active { background: #2b6cb0; border-color: #2b6cb0; color: white; }
+    .method-nav button:hover:not(.active) { border-color: #2b6cb0; color: #2b6cb0; }
+    .tr-nav button.active { background: #276749; border-color: #276749; }
+    .tr-nav button:hover:not(.active) { border-color: #276749; color: #276749; }
 
-    /* Info tooltip */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 680px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .card {
+      background: white; border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      padding: 20px;
+    }
+    .card-title {
+      font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: #a0aec0; margin-bottom: 2px;
+    }
+    .card-heading {
+      font-size: 0.97rem; font-weight: 700; color: #1a365d;
+      margin-bottom: 16px; padding-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .input-group { margin-bottom: 13px; }
+    .input-group label {
+      display: block; font-size: 0.82rem; font-weight: 600;
+      color: #2d3748; margin-bottom: 3px;
+    }
+    .hint { font-size: 0.73rem; color: #718096; display: block; margin-bottom: 3px; }
+
+    .input-row-inner {
+      display: flex; align-items: center;
+      border: 1.5px solid #cbd5e0; border-radius: 7px;
+      overflow: hidden; background: white; transition: border-color 0.15s;
+    }
+    .input-row-inner:focus-within { border-color: #2b6cb0; }
+
+    input[type="number"] {
+      flex: 1; padding: 8px 12px; border: none; outline: none;
+      font-size: 0.92rem; background: transparent; color: #1a202c;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+    input[type="number"]::placeholder { color: #a0aec0; }
+    .unit-label {
+      padding: 8px 11px; background: #f7fafc;
+      font-size: 0.75rem; font-weight: 600; color: #718096;
+      border-left: 1px solid #e2e8f0; white-space: nowrap;
+    }
+    select {
+      flex: 1; padding: 8px 10px; border: none; outline: none;
+      font-size: 0.85rem; background: transparent; color: #1a202c;
+    }
+
+    .formula {
+      background: #ebf8ff; border: 1px solid #bee3f8;
+      border-left: 3px solid #2b6cb0; border-radius: 6px;
+      padding: 12px; margin: 14px 0;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.77rem; color: #2c5282; line-height: 1.9;
+    }
+    .formula.tr { background: #f0fff4; border-color: #9ae6b4; border-left-color: #276749; color: #1c4532; }
+
+    .btn-calc {
+      width: 100%; padding: 11px;
+      background: linear-gradient(135deg, #2b6cb0, #1e4e8c);
+      color: white; border: none; border-radius: 7px;
+      font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; margin-top: 12px; transition: opacity 0.15s;
+    }
+    .btn-calc:hover { opacity: 0.88; }
+    .btn-calc.tr { background: linear-gradient(135deg, #276749, #1a4a30); }
+    .btn-clear {
+      width: 100%; padding: 8px; background: white;
+      border: 1.5px solid #cbd5e0; border-radius: 7px;
+      font-size: 0.82rem; color: #718096; cursor: pointer;
+      margin-top: 6px; transition: all 0.15s;
+    }
+    .btn-clear:hover { border-color: #718096; color: #4a5568; }
+
+    .result-empty { text-align: center; padding: 36px 16px; color: #a0aec0; font-size: 0.87rem; }
+
+    .result-row {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid #f0f4f8; flex-wrap: wrap;
+    }
+    .result-row:last-of-type { border-bottom: none; }
+    .result-name { font-size: 0.82rem; color: #4a5568; flex: 1; min-width: 120px; }
+    .result-name strong { display: block; color: #1a202c; font-size: 0.87rem; }
+    .result-name span { font-size: 0.73rem; color: #718096; }
+    .result-val {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 1rem; font-weight: 700; color: #1a365d; white-space: nowrap;
+    }
+    .result-val .u { font-size: 0.7rem; font-weight: 400; color: #718096; margin-left: 2px; }
+
+    .badge {
+      padding: 3px 10px; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .b-mild { background: #c6f6d5; color: #22543d; }
+    .b-moderate { background: #fefcbf; color: #744210; }
+    .b-severe { background: #fed7d7; color: #742a2a; }
+    .b-torrential { background: #e9d8fd; color: #44337a; }
+    .b-na { background: #edf2f7; color: #a0aec0; }
+
+    .summary {
+      margin-top: 16px; padding: 14px 16px;
+      border-radius: 8px; border: 1.5px solid #bee3f8; background: #ebf8ff;
+    }
+    .summary.mild { border-color: #9ae6b4; background: #f0fff4; }
+    .summary.moderate { border-color: #faf089; background: #fffff0; }
+    .summary.severe { border-color: #fc8181; background: #fff5f5; }
+    .summary.torrential { border-color: #d6bcfa; background: #faf5ff; }
+    .sum-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #718096; margin-bottom: 1px; }
+    .sum-grade { font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
+    .g-mild { color: #22543d; } .g-moderate { color: #744210; }
+    .g-severe { color: #742a2a; } .g-torrential { color: #44337a; } .g-na { color: #718096; }
+    .sum-note { font-size: 0.77rem; color: #4a5568; margin-top: 4px; }
+
     .info-note {
-      font-size: 0.78rem; color: var(--text-dim);
-      font-style: italic; margin-top: 4px;
+      font-size: 0.77rem; color: #744210;
+      background: #fffaf0; border: 1px solid #fbd38d;
+      border-radius: 6px; padding: 9px 12px; margin-bottom: 14px;
     }
 
-    /* Divider */
-    hr.divider {
-      border: none; border-top: 1px solid var(--border);
-      margin: 20px 0;
-    }
+    .divider { border: none; border-top: 1px solid #e2e8f0; margin: 18px 0; }
 
-    /* Footer */
-    footer {
-      text-align: center; padding-top: 32px;
-      border-top: 1px solid var(--border);
-      color: var(--text-dim); font-size: 0.78rem; line-height: 1.8;
-    }
+    .cutoff-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 12px; }
+    @media (max-width: 600px) { .cutoff-grid { grid-template-columns: 1fr; } }
 
-    footer a { color: var(--text-muted); }
+    .cutoff-col { border-radius: 8px; padding: 14px; border: 1px solid #e2e8f0; background: #f7fafc; }
+    .cutoff-head {
+      font-size: 0.73rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      padding-bottom: 8px; margin-bottom: 10px; border-bottom: 2px solid currentColor;
+    }
+    .cutoff-head.mild { color: #22543d; } .cutoff-head.moderate { color: #744210; } .cutoff-head.severe { color: #742a2a; }
+    .ci { font-size: 0.79rem; color: #4a5568; margin-bottom: 5px; display: flex; justify-content: space-between; gap: 8px; }
+    .ci strong { color: #1a202c; }
 
     .disclaimer {
-      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2);
-      border-radius: var(--radius-sm); padding: 12px 16px;
-      font-size: 0.78rem; color: var(--moderate);
-      margin-top: 24px;
+      background: #fffaf0; border: 1px solid #fbd38d;
+      border-radius: 8px; padding: 12px 16px;
+      font-size: 0.77rem; color: #744210; margin-top: 20px;
     }
 
-    /* Wide card full-width */
-    .full-width { grid-column: 1 / -1; }
-
-    /* Helper: collapsed result */
-    .empty-result {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.9rem; color: var(--text-dim);
+    footer {
+      text-align: center; padding: 18px;
+      font-size: 0.77rem; color: #718096;
+      border-top: 1px solid #e2e8f0; background: white;
+      margin-top: 32px;
     }
+
+    .mini-calc { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-top: 14px; }
+    .mini-calc > div { flex: 1; min-width: 130px; }
+    .mini-calc label { display: block; font-size: 0.78rem; font-weight: 600; color: #2d3748; margin-bottom: 4px; }
+    #rvsp-result { font-family: 'SF Mono','Fira Code',monospace; font-size: 1.1rem; font-weight: 700; padding-bottom: 8px; min-width: 90px; }
+
+    .sec-h { font-size: 0.97rem; font-weight: 700; color: #1a365d; margin-bottom: 6px; }
+    .sec-sub { font-size: 0.82rem; color: #4a5568; margin-bottom: 14px; }
+    .full { grid-column: 1 / -1; }
   </style>
 </head>
 <body>
-<div class="wrapper">
 
-  <header>
-    <div class="badge"><span>Echo Calculator</span></div>
-    <h1>MR & TR <span>Quantification</span></h1>
-    <p class="subtitle">Comprehensive echocardiographic quantification of mitral and tricuspid regurgitation using PISA/EROA, continuity equation, and quantitative Doppler methods.</p>
-  </header>
+<header>
+  <div class="icon">🫀</div>
+  <h1>MR & TR Quantification Calculator</h1>
+  <p>EROA · Regurgitant Volume · Regurgitant Fraction · Severity Grading</p>
+</header>
 
-  <!-- Main tabs -->
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="mr" onclick="switchTab('mr')">
-      <span class="tab-dot"></span> Mitral Regurgitation (MR)
-    </button>
-    <button class="tab-btn" data-tab="tr" onclick="switchTab('tr')">
-      <span class="tab-dot"></span> Tricuspid Regurgitation (TR)
-    </button>
-  </div>
+<nav class="main-nav">
+  <button class="active" onclick="switchTab('mr')">Mitral Regurgitation (MR)</button>
+  <button onclick="switchTab('tr')">Tricuspid Regurgitation (TR)</button>
+</nav>
 
-  <!-- ============================================================ MR PANEL ============================================================ -->
+<div class="content">
+
+  <!-- ═══════════════ MR PANEL ═══════════════ -->
   <div id="panel-mr" class="tab-panel active">
-
-    <!-- Method sub-tabs -->
-    <div class="method-tabs">
-      <button class="method-tab active" data-method="pisa" onclick="switchMethod('mr','pisa')">PISA / EROA</button>
-      <button class="method-tab" data-method="cont" onclick="switchMethod('mr','cont')">Continuity Equation</button>
-      <button class="method-tab" data-method="qdop" onclick="switchMethod('mr','qdop')">Quantitative Doppler</button>
-      <button class="method-tab" data-method="ref" onclick="switchMethod('mr','ref')">Severity Cutoffs</button>
+    <div class="method-nav" id="mr-nav">
+      <button class="active" onclick="switchMethod('mr','pisa')">PISA / EROA</button>
+      <button onclick="switchMethod('mr','cont')">Continuity Equation</button>
+      <button onclick="switchMethod('mr','qdop')">Quantitative Doppler</button>
+      <button onclick="switchMethod('mr','ref')">Severity Reference</button>
     </div>
 
-    <!-- PISA/EROA Method -->
+    <!-- MR PISA -->
     <div id="mr-pisa" class="method-section active">
-      <div class="section-grid">
+      <div class="grid-2">
         <div class="card">
-          <div class="card-title">Inputs — PISA Method</div>
-          <div class="method-label">PISA (Proximal Isovelocity Surface Area)</div>
+          <div class="card-title">Method</div>
+          <div class="card-heading">PISA / EROA — Mitral Regurgitation</div>
+          <div class="info-note">⚠️ Shift color baseline toward MR jet (typically 25–40 cm/s). Standard PISA assumes 180° hemisphere — apply angle correction for eccentric jets.</div>
 
-          <div class="input-row">
-            <label><strong>PISA Radius (r)</strong>Measured at aliasing velocity</label>
-            <div class="input-wrap">
-              <input type="number" id="mr-pisa-r" placeholder="0.0" step="0.01" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>PISA Radius (r)</label>
+            <span class="hint">Measured at the aliasing velocity interface</span>
+            <div class="input-row-inner"><input type="number" id="mr-pisa-r" placeholder="e.g. 1.0" step="0.01" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>Aliasing Velocity (Va)</strong>Color flow Nyquist limit</label>
-            <div class="input-wrap">
-              <input type="number" id="mr-pisa-va" placeholder="40" step="1" min="0" />
-              <span class="unit">cm/s</span>
-            </div>
+          <div class="input-group">
+            <label>Aliasing Velocity (Va)</label>
+            <span class="hint">Color Nyquist limit after baseline shift</span>
+            <div class="input-row-inner"><input type="number" id="mr-pisa-va" placeholder="e.g. 40" step="1" min="0"/><span class="unit-label">cm/s</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>MR Peak Velocity (Vmax)</strong>CW Doppler peak MR jet</label>
-            <div class="input-wrap">
-              <input type="number" id="mr-pisa-vmax" placeholder="5.0" step="0.1" min="0" />
-              <span class="unit">m/s</span>
-            </div>
+          <div class="input-group">
+            <label>MR Peak Velocity (Vmax)</label>
+            <span class="hint">CW Doppler peak of MR jet</span>
+            <div class="input-row-inner"><input type="number" id="mr-pisa-vmax" placeholder="e.g. 5.0" step="0.1" min="0"/><span class="unit-label">m/s</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>MR VTI</strong>CW Doppler MR jet envelope</label>
-            <div class="input-wrap">
-              <input type="number" id="mr-pisa-vti" placeholder="0.0" step="1" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>MR VTI <span style="font-weight:400;color:#718096">(optional — for RVol)</span></label>
+            <span class="hint">CW Doppler MR envelope tracing</span>
+            <div class="input-row-inner"><input type="number" id="mr-pisa-vti" placeholder="e.g. 150" step="1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="formula-box">
-            <div class="formula-text">
-              <strong>Flow</strong> = 2π × r² × Va<br/>
-              <strong>EROA</strong> = Flow / Vmax<br/>
-              <strong>RVol</strong> = EROA × MR VTI
-            </div>
-          </div>
-
-          <button class="calc-btn" onclick="calcMrPisa()">Calculate EROA & RVol</button>
-          <button class="clear-btn" onclick="clearMrPisa()">Clear</button>
+          <div class="formula">Flow (mL/s) = 2π × r² × Va<br/>EROA (cm²) &nbsp;= Flow ÷ Vmax<br/>RVol (mL) &nbsp;&nbsp;= EROA × MR VTI</div>
+          <button class="btn-calc" onclick="calcMrPisa()">▶ Calculate</button>
+          <button class="btn-clear" onclick="clearMrPisa()">↺ Clear</button>
         </div>
-
-        <div class="card" id="mr-pisa-results">
-          <div class="card-title">Results — PISA Method</div>
-          <div id="mr-pisa-output">
-            <p class="empty-result" style="color:var(--text-dim); margin-top:20px;">Enter values and calculate →</p>
-          </div>
+        <div class="card">
+          <div class="card-title">Results</div>
+          <div class="card-heading">PISA / EROA</div>
+          <div id="mr-pisa-out"><div class="result-empty">Enter values and click Calculate</div></div>
         </div>
       </div>
     </div>
 
-    <!-- Continuity Equation Method -->
+    <!-- MR Continuity -->
     <div id="mr-cont" class="method-section">
-      <div class="section-grid">
+      <div class="grid-2">
         <div class="card">
-          <div class="card-title">Inputs — Continuity Equation</div>
-          <div class="method-label">Volumetric Method (MV SV − LVOT SV)</div>
+          <div class="card-title">Method</div>
+          <div class="card-heading">Continuity Equation — MV SV vs. LVOT SV</div>
+          <div class="info-note">⚠️ Assumes no significant AR or other left-sided regurgitation. MV annulus assumed circular — potential source of error.</div>
 
-          <div class="input-row">
-            <label><strong>LVOT Diameter</strong>PLAX, midsystole</label>
-            <div class="input-wrap">
-              <input type="number" id="mr-cont-lvotd" placeholder="2.0" step="0.01" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>LVOT Diameter</label>
+            <span class="hint">PLAX, midsystole, inner edge-to-inner edge</span>
+            <div class="input-row-inner"><input type="number" id="mr-cont-lvotd" placeholder="e.g. 2.0" step="0.01" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>LVOT VTI</strong>PWD at LVOT</label>
-            <div class="input-wrap">
-              <input type="number" id="mr-cont-lvotvti" placeholder="20" step="0.1" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>LVOT VTI</label>
+            <span class="hint">PWD at LVOT (same level as diameter measurement)</span>
+            <div class="input-row-inner"><input type="number" id="mr-cont-lvotvti" placeholder="e.g. 22" step="0.1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>Mitral Annular Diameter</strong>Apical 4-chamber, diastole</label>
-            <div class="input-wrap">
-              <input type="number" id="mr-cont-mvd" placeholder="3.0" step="0.01" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>Mitral Annular Diameter</label>
+            <span class="hint">Apical 4-chamber, early diastole</span>
+            <div class="input-row-inner"><input type="number" id="mr-cont-mvd" placeholder="e.g. 3.0" step="0.01" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>MV VTI</strong>PWD at mitral annulus (E+A)</label>
-            <div class="input-wrap">
-              <input type="number" id="mr-cont-mvvti" placeholder="10" step="0.1" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>MV VTI</label>
+            <span class="hint">PWD at mitral annulus — trace full E+A envelope</span>
+            <div class="input-row-inner"><input type="number" id="mr-cont-mvvti" placeholder="e.g. 12" step="0.1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="formula-box">
-            <div class="formula-text">
-              <strong>LVOT SV</strong> = π(LVOT d/2)² × LVOT VTI<br/>
-              <strong>MV SV</strong> = π(MV d/2)² × MV VTI<br/>
-              <strong>RVol</strong> = MV SV − LVOT SV<br/>
-              <strong>RF</strong> = RVol / MV SV × 100
-            </div>
-          </div>
-
-          <button class="calc-btn" onclick="calcMrCont()">Calculate RVol & RF</button>
-          <button class="clear-btn" onclick="clearMrCont()">Clear</button>
+          <div class="formula">LVOT SV = π × (LVOT d/2)² × LVOT VTI<br/>MV SV &nbsp;&nbsp;= π × (MV d/2)² × MV VTI<br/>RVol &nbsp;&nbsp;&nbsp;&nbsp;= MV SV − LVOT SV<br/>RF (%) &nbsp;&nbsp;= RVol / MV SV × 100</div>
+          <button class="btn-calc" onclick="calcMrCont()">▶ Calculate</button>
+          <button class="btn-clear" onclick="clearMrCont()">↺ Clear</button>
         </div>
-
         <div class="card">
-          <div class="card-title">Results — Continuity Equation</div>
-          <div id="mr-cont-output">
-            <p class="empty-result" style="color:var(--text-dim); margin-top:20px;">Enter values and calculate →</p>
-          </div>
+          <div class="card-title">Results</div>
+          <div class="card-heading">Continuity Equation</div>
+          <div id="mr-cont-out"><div class="result-empty">Enter values and click Calculate</div></div>
         </div>
       </div>
     </div>
 
-    <!-- Quantitative Doppler Method -->
+    <!-- MR Quant Doppler -->
     <div id="mr-qdop" class="method-section">
-      <div class="section-grid">
+      <div class="grid-2">
         <div class="card">
-          <div class="card-title">Inputs — Quantitative Doppler</div>
-          <div class="method-label">Pulmonary Vein / Left Heart Comparison</div>
+          <div class="card-title">Method</div>
+          <div class="card-heading">Quantitative Doppler — LVOT vs. Pulmonic Valve</div>
+          <div class="info-note">⚠️ Assumes no significant TR or right-sided regurgitation. Pulmonic annulus measurement is a source of error.</div>
 
-          <div class="input-row">
-            <label><strong>LVOT Diameter</strong></label>
-            <div class="input-wrap">
-              <input type="number" id="mr-qd-lvotd" placeholder="2.0" step="0.01" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>LVOT Diameter</label>
+            <div class="input-row-inner"><input type="number" id="mr-qd-lvotd" placeholder="e.g. 2.0" step="0.01" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>LVOT VTI</strong></label>
-            <div class="input-wrap">
-              <input type="number" id="mr-qd-lvotvti" placeholder="20" step="0.1" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>LVOT VTI</label>
+            <div class="input-row-inner"><input type="number" id="mr-qd-lvotvti" placeholder="e.g. 22" step="0.1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>Pulmonary Annular Diameter</strong>PSAX or TEE</label>
-            <div class="input-wrap">
-              <input type="number" id="mr-qd-pvd" placeholder="2.2" step="0.01" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>Pulmonic Annular Diameter</label>
+            <span class="hint">PSAX or TEE</span>
+            <div class="input-row-inner"><input type="number" id="mr-qd-pvd" placeholder="e.g. 2.2" step="0.01" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>PV VTI</strong>PWD at pulmonic valve</label>
-            <div class="input-wrap">
-              <input type="number" id="mr-qd-pvvti" placeholder="18" step="0.1" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>Pulmonic VTI</label>
+            <span class="hint">PWD at pulmonic valve</span>
+            <div class="input-row-inner"><input type="number" id="mr-qd-pvvti" placeholder="e.g. 18" step="0.1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>Heart Rate</strong>For CO calculation</label>
-            <div class="input-wrap">
-              <input type="number" id="mr-qd-hr" placeholder="70" step="1" min="30" max="200" />
-              <span class="unit">bpm</span>
-            </div>
+          <div class="input-group">
+            <label>Heart Rate <span style="font-weight:400;color:#718096">(optional — for CO)</span></label>
+            <div class="input-row-inner"><input type="number" id="mr-qd-hr" placeholder="e.g. 70" step="1" min="30" max="200"/><span class="unit-label">bpm</span></div>
           </div>
-
-          <div class="formula-box">
-            <div class="formula-text">
-              <strong>LVOT SV</strong> = π(LVOT d/2)² × LVOT VTI<br/>
-              <strong>PV SV</strong> = π(PV d/2)² × PV VTI<br/>
-              <strong>RVol</strong> = LVOT SV − PV SV<br/>
-              <strong>RF</strong> = RVol / LVOT SV × 100<br/>
-              <strong>CO</strong> = SV × HR / 1000
-            </div>
-          </div>
-
-          <button class="calc-btn" onclick="calcMrQdop()">Calculate</button>
-          <button class="clear-btn" onclick="clearMrQdop()">Clear</button>
+          <div class="formula">LVOT SV = π × (LVOT d/2)² × LVOT VTI<br/>PV SV &nbsp;&nbsp;&nbsp;= π × (PV d/2)² × PV VTI<br/>RVol &nbsp;&nbsp;&nbsp;&nbsp;= LVOT SV − PV SV<br/>RF (%) &nbsp;&nbsp;= RVol / LVOT SV × 100</div>
+          <button class="btn-calc" onclick="calcMrQdop()">▶ Calculate</button>
+          <button class="btn-clear" onclick="clearMrQdop()">↺ Clear</button>
         </div>
-
         <div class="card">
-          <div class="card-title">Results — Quantitative Doppler</div>
-          <div id="mr-qd-output">
-            <p class="empty-result" style="color:var(--text-dim); margin-top:20px;">Enter values and calculate →</p>
-          </div>
+          <div class="card-title">Results</div>
+          <div class="card-heading">Quantitative Doppler</div>
+          <div id="mr-qd-out"><div class="result-empty">Enter values and click Calculate</div></div>
         </div>
       </div>
     </div>
 
-    <!-- Severity Reference -->
+    <!-- MR Reference -->
     <div id="mr-ref" class="method-section">
-      <div class="card full-width">
-        <div class="card-title">MR Severity Cutoffs</div>
-        <p style="font-size:0.83rem; color:var(--text-muted); margin-bottom:16px;">
-          Based on <strong>2017 AHA/ACC & 2021 ESC</strong> guidelines for valvular heart disease.
-          Grading integrates multiple parameters; no single value is definitive.
-        </p>
-
-        <div class="cutoffs-grid">
+      <div class="card">
+        <div class="card-title">Reference</div>
+        <div class="card-heading">MR Severity Cutoffs — AHA/ACC 2017 &amp; ESC 2021</div>
+        <p class="sec-sub">Grading integrates multiple parameters. No single value is definitive.</p>
+        <div class="cutoff-grid">
           <div class="cutoff-col">
-            <div class="cutoff-col-head mild">Mild (Grade I–II)</div>
-            <div class="cutoff-item"><strong>EROA:</strong> &lt; 0.20 cm²</div>
-            <div class="cutoff-item"><strong>RVol:</strong> &lt; 30 mL</div>
-            <div class="cutoff-item"><strong>RF:</strong> &lt; 30%</div>
-            <div class="cutoff-item"><strong>Vena contracta:</strong> &lt; 0.3 cm</div>
+            <div class="cutoff-head mild">Mild</div>
+            <div class="ci"><span>EROA</span><strong>&lt; 0.20 cm²</strong></div>
+            <div class="ci"><span>RVol</span><strong>&lt; 30 mL</strong></div>
+            <div class="ci"><span>RF</span><strong>&lt; 30%</strong></div>
+            <div class="ci"><span>Vena contracta</span><strong>&lt; 0.3 cm</strong></div>
           </div>
           <div class="cutoff-col">
-            <div class="cutoff-col-head moderate">Moderate (Grade III)</div>
-            <div class="cutoff-item"><strong>EROA:</strong> 0.20–0.39 cm²</div>
-            <div class="cutoff-item"><strong>RVol:</strong> 30–59 mL</div>
-            <div class="cutoff-item"><strong>RF:</strong> 30–49%</div>
-            <div class="cutoff-item"><strong>Vena contracta:</strong> 0.3–0.69 cm</div>
+            <div class="cutoff-head moderate">Moderate</div>
+            <div class="ci"><span>EROA</span><strong>0.20–0.39 cm²</strong></div>
+            <div class="ci"><span>RVol</span><strong>30–59 mL</strong></div>
+            <div class="ci"><span>RF</span><strong>30–49%</strong></div>
+            <div class="ci"><span>Vena contracta</span><strong>0.3–0.69 cm</strong></div>
           </div>
           <div class="cutoff-col">
-            <div class="cutoff-col-head severe">Severe (Grade IV)</div>
-            <div class="cutoff-item"><strong>EROA:</strong> ≥ 0.40 cm²</div>
-            <div class="cutoff-item"><strong>RVol:</strong> ≥ 60 mL</div>
-            <div class="cutoff-item"><strong>RF:</strong> ≥ 50%</div>
-            <div class="cutoff-item"><strong>Vena contracta:</strong> ≥ 0.70 cm</div>
+            <div class="cutoff-head severe">Severe</div>
+            <div class="ci"><span>EROA</span><strong>≥ 0.40 cm²</strong></div>
+            <div class="ci"><span>RVol</span><strong>≥ 60 mL</strong></div>
+            <div class="ci"><span>RF</span><strong>≥ 50%</strong></div>
+            <div class="ci"><span>Vena contracta</span><strong>≥ 0.70 cm</strong></div>
           </div>
         </div>
-
         <hr class="divider"/>
-        <p style="font-size:0.83rem; color:var(--text-muted); margin-bottom:12px;"><strong style="color:var(--text)">Very Severe MR (guideline trigger for intervention)</strong></p>
-        <div class="cutoffs-grid" style="grid-template-columns:1fr 1fr;">
+        <p class="sec-h">Intervention Thresholds (Severe MR)</p>
+        <div class="cutoff-grid" style="grid-template-columns:1fr 1fr;">
           <div class="cutoff-col">
-            <div class="cutoff-col-head severe" style="font-size:0.68rem;">Intervention Criteria (symptomatic)</div>
-            <div class="cutoff-item"><strong>EROA</strong> ≥ 0.40 cm² with symptoms (NYHA II–IV)</div>
-            <div class="cutoff-item"><strong>LV EF</strong> &lt; 60% or LVESD &gt; 40 mm</div>
+            <div class="cutoff-head severe">Class I Indications</div>
+            <div class="ci"><span>Symptomatic severe MR (NYHA II–IV)</span></div>
+            <div class="ci"><span>LV EF</span><strong>&lt; 60%</strong></div>
+            <div class="ci"><span>LVESD</span><strong>&gt; 40 mm</strong></div>
           </div>
           <div class="cutoff-col">
-            <div class="cutoff-col-head moderate" style="font-size:0.68rem;">Additional Quantitative Markers</div>
-            <div class="cutoff-item">Pulmonary HTN at rest (RVSP &gt; 50 mmHg)</div>
-            <div class="cutoff-item">New AF attributable to MR</div>
+            <div class="cutoff-head moderate">Additional Triggers</div>
+            <div class="ci"><span>RVSP at rest</span><strong>&gt; 50 mmHg</strong></div>
+            <div class="ci"><span>New AF attributable to MR</span></div>
+            <div class="ci"><span>Progressive LV dilation</span></div>
           </div>
         </div>
-
         <hr class="divider"/>
-        <p style="font-size:0.83rem; color:var(--text-muted); margin-bottom:12px;"><strong style="color:var(--text)">PISA Geometry Correction</strong></p>
-        <div class="formula-box" style="margin-top:0">
-          <div class="formula-text">
-            Standard PISA assumes <strong>180° hemisphere</strong>. If the MR jet is constrained (eccentric), apply angle correction:<br/>
-            <strong>Corrected Flow</strong> = 2π × r² × Va × (α / 180°)<br/>
-            where α = opening angle of PISA surface in degrees
-          </div>
-        </div>
+        <p class="sec-h">PISA Angle Correction (Eccentric Jets)</p>
+        <div class="formula" style="margin-top:8px;">Corrected Flow = 2π × r² × Va × (α / 180°)<br/>where α = opening angle of PISA surface in degrees</div>
       </div>
     </div>
-
   </div>
 
-  <!-- ============================================================ TR PANEL ============================================================ -->
+  <!-- ═══════════════ TR PANEL ═══════════════ -->
   <div id="panel-tr" class="tab-panel">
-
-    <div class="method-tabs tr-color">
-      <button class="method-tab active" data-method="pisa" onclick="switchMethod('tr','pisa')">PISA / EROA</button>
-      <button class="method-tab" data-method="cont" onclick="switchMethod('tr','cont')">Continuity Equation</button>
-      <button class="method-tab" data-method="qdop" onclick="switchMethod('tr','qdop')">Quantitative Doppler</button>
-      <button class="method-tab" data-method="ref" onclick="switchMethod('tr','ref')">Severity Cutoffs</button>
+    <div class="method-nav tr-nav" id="tr-nav">
+      <button class="active" onclick="switchMethod('tr','pisa')">PISA / EROA</button>
+      <button onclick="switchMethod('tr','cont')">Continuity Equation</button>
+      <button onclick="switchMethod('tr','qdop')">Quantitative Doppler</button>
+      <button onclick="switchMethod('tr','ref')">Severity Reference</button>
     </div>
 
     <!-- TR PISA -->
-    <div id="tr-pisa" class="method-section active tr-color">
-      <div class="section-grid">
+    <div id="tr-pisa" class="method-section active">
+      <div class="grid-2">
         <div class="card">
-          <div class="card-title">Inputs — PISA Method</div>
-          <div class="method-label" style="color:var(--accent-tr)">TR PISA / EROA</div>
+          <div class="card-title">Method</div>
+          <div class="card-heading">PISA / EROA — Tricuspid Regurgitation</div>
+          <div class="info-note">⚠️ Shift baseline toward TR jet. Recommended Va ~28 cm/s for TR. PISA hemisphere may underestimate massive TR.</div>
 
-          <div class="input-row">
-            <label><strong>PISA Radius (r)</strong>At aliasing velocity</label>
-            <div class="input-wrap" style="border-color: var(--border)">
-              <input type="number" id="tr-pisa-r" placeholder="0.0" step="0.01" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>PISA Radius (r)</label>
+            <span class="hint">Measured at aliasing velocity</span>
+            <div class="input-row-inner"><input type="number" id="tr-pisa-r" placeholder="e.g. 0.8" step="0.01" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>Aliasing Velocity (Va)</strong>Nyquist limit</label>
-            <div class="input-wrap">
-              <input type="number" id="tr-pisa-va" placeholder="28" step="1" min="0" />
-              <span class="unit">cm/s</span>
-            </div>
+          <div class="input-group">
+            <label>Aliasing Velocity (Va)</label>
+            <div class="input-row-inner"><input type="number" id="tr-pisa-va" placeholder="e.g. 28" step="1" min="0"/><span class="unit-label">cm/s</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>TR Peak Velocity (Vmax)</strong>CW Doppler</label>
-            <div class="input-wrap">
-              <input type="number" id="tr-pisa-vmax" placeholder="3.0" step="0.1" min="0" />
-              <span class="unit">m/s</span>
-            </div>
+          <div class="input-group">
+            <label>TR Peak Velocity (Vmax)</label>
+            <span class="hint">CW Doppler TR jet</span>
+            <div class="input-row-inner"><input type="number" id="tr-pisa-vmax" placeholder="e.g. 3.0" step="0.1" min="0"/><span class="unit-label">m/s</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>TR VTI</strong>CW Doppler TR envelope</label>
-            <div class="input-wrap">
-              <input type="number" id="tr-pisa-vti" placeholder="0.0" step="1" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>TR VTI <span style="font-weight:400;color:#718096">(optional — for RVol)</span></label>
+            <span class="hint">CW Doppler TR envelope tracing</span>
+            <div class="input-row-inner"><input type="number" id="tr-pisa-vti" placeholder="e.g. 100" step="1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="formula-box" style="border-left-color: var(--accent-tr)">
-            <div class="formula-text" style="color:var(--text-muted)">
-              <span style="color:var(--accent-tr)"><strong>Flow</strong></span> = 2π × r² × Va<br/>
-              <span style="color:var(--accent-tr)"><strong>EROA</strong></span> = Flow / Vmax (×0.01 for units)<br/>
-              <span style="color:var(--accent-tr)"><strong>RVol</strong></span> = EROA × TR VTI
-            </div>
-          </div>
-
-          <button class="calc-btn tr-btn" onclick="calcTrPisa()">Calculate EROA & RVol</button>
-          <button class="clear-btn" onclick="clearTrPisa()">Clear</button>
+          <div class="formula tr">Flow (mL/s) = 2π × r² × Va<br/>EROA (cm²) &nbsp;= Flow ÷ Vmax<br/>RVol (mL) &nbsp;&nbsp;= EROA × TR VTI</div>
+          <button class="btn-calc tr" onclick="calcTrPisa()">▶ Calculate</button>
+          <button class="btn-clear" onclick="clearTrPisa()">↺ Clear</button>
         </div>
-
         <div class="card">
-          <div class="card-title">Results — TR PISA</div>
-          <div id="tr-pisa-output">
-            <p class="empty-result" style="color:var(--text-dim); margin-top:20px;">Enter values and calculate →</p>
-          </div>
+          <div class="card-title">Results</div>
+          <div class="card-heading">TR PISA / EROA</div>
+          <div id="tr-pisa-out"><div class="result-empty">Enter values and click Calculate</div></div>
         </div>
       </div>
     </div>
 
     <!-- TR Continuity -->
-    <div id="tr-cont" class="method-section tr-color">
-      <div class="section-grid">
+    <div id="tr-cont" class="method-section">
+      <div class="grid-2">
         <div class="card">
-          <div class="card-title">Inputs — Continuity Equation</div>
-          <div class="method-label" style="color:var(--accent-tr)">TV SV vs. PV SV Comparison</div>
+          <div class="card-title">Method</div>
+          <div class="card-heading">Continuity Equation — TV SV vs. PV SV</div>
+          <div class="info-note">⚠️ Assumes no significant PR. TV annulus is elliptical — circular assumption is a source of error.</div>
 
-          <div class="input-row">
-            <label><strong>TV Annular Diameter</strong>A4C, diastole</label>
-            <div class="input-wrap">
-              <input type="number" id="tr-cont-tvd" placeholder="3.5" step="0.01" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>TV Annular Diameter</label>
+            <span class="hint">Apical 4-chamber, early diastole</span>
+            <div class="input-row-inner"><input type="number" id="tr-cont-tvd" placeholder="e.g. 3.5" step="0.01" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>TV VTI</strong>PWD at tricuspid annulus</label>
-            <div class="input-wrap">
-              <input type="number" id="tr-cont-tvvti" placeholder="12" step="0.1" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>TV VTI</label>
+            <span class="hint">PWD at tricuspid annulus — full E+A envelope</span>
+            <div class="input-row-inner"><input type="number" id="tr-cont-tvvti" placeholder="e.g. 12" step="0.1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>PV Annular Diameter</strong>PSAX</label>
-            <div class="input-wrap">
-              <input type="number" id="tr-cont-pvd" placeholder="2.2" step="0.01" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>Pulmonic Annular Diameter</label>
+            <span class="hint">PSAX view</span>
+            <div class="input-row-inner"><input type="number" id="tr-cont-pvd" placeholder="e.g. 2.2" step="0.01" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>PV VTI</strong>PWD at pulmonic valve</label>
-            <div class="input-wrap">
-              <input type="number" id="tr-cont-pvvti" placeholder="18" step="0.1" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>Pulmonic VTI</label>
+            <span class="hint">PWD at pulmonic valve</span>
+            <div class="input-row-inner"><input type="number" id="tr-cont-pvvti" placeholder="e.g. 18" step="0.1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="formula-box" style="border-left-color: var(--accent-tr)">
-            <div class="formula-text" style="color:var(--text-muted)">
-              <span style="color:var(--accent-tr)"><strong>TV SV</strong></span> = π(TV d/2)² × TV VTI<br/>
-              <span style="color:var(--accent-tr)"><strong>PV SV</strong></span> = π(PV d/2)² × PV VTI<br/>
-              <span style="color:var(--accent-tr)"><strong>RVol</strong></span> = TV SV − PV SV<br/>
-              <span style="color:var(--accent-tr)"><strong>RF</strong></span> = RVol / TV SV × 100
-            </div>
-          </div>
-
-          <button class="calc-btn tr-btn" onclick="calcTrCont()">Calculate RVol & RF</button>
-          <button class="clear-btn" onclick="clearTrCont()">Clear</button>
+          <div class="formula tr">TV SV &nbsp;= π × (TV d/2)² × TV VTI<br/>PV SV &nbsp;= π × (PV d/2)² × PV VTI<br/>RVol &nbsp;&nbsp;= TV SV − PV SV<br/>RF (%) = RVol / TV SV × 100</div>
+          <button class="btn-calc tr" onclick="calcTrCont()">▶ Calculate</button>
+          <button class="btn-clear" onclick="clearTrCont()">↺ Clear</button>
         </div>
-
         <div class="card">
-          <div class="card-title">Results — TR Continuity Eq.</div>
-          <div id="tr-cont-output">
-            <p class="empty-result" style="color:var(--text-dim); margin-top:20px;">Enter values and calculate →</p>
-          </div>
+          <div class="card-title">Results</div>
+          <div class="card-heading">TR Continuity Equation</div>
+          <div id="tr-cont-out"><div class="result-empty">Enter values and click Calculate</div></div>
         </div>
       </div>
     </div>
 
     <!-- TR Quant Doppler -->
-    <div id="tr-qdop" class="method-section tr-color">
-      <div class="section-grid">
+    <div id="tr-qdop" class="method-section">
+      <div class="grid-2">
         <div class="card">
-          <div class="card-title">Inputs — Quantitative Doppler</div>
-          <div class="method-label" style="color:var(--accent-tr)">Right-heart Comparison Method</div>
+          <div class="card-title">Method</div>
+          <div class="card-heading">Quantitative Doppler — TV vs. RVOT</div>
+          <div class="info-note">⚠️ Assumes no significant PR. RVOT diameter measured in PSAX at pulmonic valve level.</div>
 
-          <div class="input-row">
-            <label><strong>RVOT Diameter</strong>PSAX at pulmonic valve</label>
-            <div class="input-wrap">
-              <input type="number" id="tr-qd-rvotd" placeholder="2.2" step="0.01" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>RVOT Diameter</label>
+            <span class="hint">PSAX, at level of pulmonic valve</span>
+            <div class="input-row-inner"><input type="number" id="tr-qd-rvotd" placeholder="e.g. 2.2" step="0.01" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>RVOT VTI</strong>PWD at RVOT</label>
-            <div class="input-wrap">
-              <input type="number" id="tr-qd-rvotvti" placeholder="18" step="0.1" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>RVOT VTI</label>
+            <span class="hint">PWD at RVOT / pulmonic valve</span>
+            <div class="input-row-inner"><input type="number" id="tr-qd-rvotvti" placeholder="e.g. 18" step="0.1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>TV Annular Diameter</strong></label>
-            <div class="input-wrap">
-              <input type="number" id="tr-qd-tvd" placeholder="3.5" step="0.01" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>TV Annular Diameter</label>
+            <div class="input-row-inner"><input type="number" id="tr-qd-tvd" placeholder="e.g. 3.5" step="0.01" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>TV VTI</strong></label>
-            <div class="input-wrap">
-              <input type="number" id="tr-qd-tvvti" placeholder="12" step="0.1" min="0" />
-              <span class="unit">cm</span>
-            </div>
+          <div class="input-group">
+            <label>TV VTI</label>
+            <div class="input-row-inner"><input type="number" id="tr-qd-tvvti" placeholder="e.g. 12" step="0.1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-
-          <div class="input-row">
-            <label><strong>Heart Rate</strong></label>
-            <div class="input-wrap">
-              <input type="number" id="tr-qd-hr" placeholder="70" step="1" min="30" max="200" />
-              <span class="unit">bpm</span>
-            </div>
+          <div class="input-group">
+            <label>Heart Rate <span style="font-weight:400;color:#718096">(optional — for CO)</span></label>
+            <div class="input-row-inner"><input type="number" id="tr-qd-hr" placeholder="e.g. 70" step="1" min="30" max="200"/><span class="unit-label">bpm</span></div>
           </div>
-
-          <div class="formula-box" style="border-left-color: var(--accent-tr)">
-            <div class="formula-text" style="color:var(--text-muted)">
-              <span style="color:var(--accent-tr)"><strong>TV SV</strong></span> = π(TV d/2)² × TV VTI<br/>
-              <span style="color:var(--accent-tr)"><strong>RVOT SV</strong></span> = π(RVOT d/2)² × RVOT VTI<br/>
-              <span style="color:var(--accent-tr)"><strong>RVol</strong></span> = TV SV − RVOT SV<br/>
-              <span style="color:var(--accent-tr)"><strong>RF</strong></span> = RVol / TV SV × 100
-            </div>
-          </div>
-
-          <button class="calc-btn tr-btn" onclick="calcTrQdop()">Calculate</button>
-          <button class="clear-btn" onclick="clearTrQdop()">Clear</button>
+          <div class="formula tr">TV SV &nbsp;&nbsp;&nbsp;= π × (TV d/2)² × TV VTI<br/>RVOT SV = π × (RVOT d/2)² × RVOT VTI<br/>RVol &nbsp;&nbsp;&nbsp;&nbsp;= TV SV − RVOT SV<br/>RF (%) &nbsp;&nbsp;= RVol / TV SV × 100</div>
+          <button class="btn-calc tr" onclick="calcTrQdop()">▶ Calculate</button>
+          <button class="btn-clear" onclick="clearTrQdop()">↺ Clear</button>
         </div>
-
         <div class="card">
-          <div class="card-title">Results — TR Quantitative Doppler</div>
-          <div id="tr-qd-output">
-            <p class="empty-result" style="color:var(--text-dim); margin-top:20px;">Enter values and calculate →</p>
-          </div>
+          <div class="card-title">Results</div>
+          <div class="card-heading">TR Quantitative Doppler</div>
+          <div id="tr-qd-out"><div class="result-empty">Enter values and click Calculate</div></div>
         </div>
       </div>
     </div>
 
-    <!-- TR Severity Reference -->
-    <div id="tr-ref" class="method-section tr-color">
-      <div class="card full-width">
-        <div class="card-title">TR Severity Cutoffs</div>
-        <p style="font-size:0.83rem; color:var(--text-muted); margin-bottom:16px;">
-          Based on <strong>2021 ESC/EACTS & 2021 AHA/ACC</strong> valvular heart disease guidelines.
-        </p>
+    <!-- TR Reference -->
+    <div id="tr-ref" class="method-section">
+      <div class="card">
+        <div class="card-title">Reference</div>
+        <div class="card-heading">TR Severity Cutoffs — ESC 2021 &amp; AHA/ACC 2021</div>
+        <p class="sec-sub">ESC 2021 introduced Massive and Torrential categories. Integrate with IVC, hepatic vein flow, RV size and function.</p>
 
-        <div class="cutoffs-grid">
+        <div class="cutoff-grid" style="grid-template-columns:repeat(4,1fr);">
           <div class="cutoff-col">
-            <div class="cutoff-col-head mild">Mild</div>
-            <div class="cutoff-item"><strong>EROA:</strong> &lt; 0.20 cm²</div>
-            <div class="cutoff-item"><strong>RVol:</strong> &lt; 30 mL</div>
-            <div class="cutoff-item"><strong>RF:</strong> &lt; 30%</div>
-            <div class="cutoff-item"><strong>VC width:</strong> &lt; 0.3 cm</div>
-            <div class="cutoff-item"><strong>PISA radius:</strong> ≤ 0.5 cm</div>
+            <div class="cutoff-head mild">Mild</div>
+            <div class="ci"><span>EROA</span><strong>&lt; 0.20 cm²</strong></div>
+            <div class="ci"><span>RVol</span><strong>&lt; 30 mL</strong></div>
+            <div class="ci"><span>RF</span><strong>&lt; 30%</strong></div>
+            <div class="ci"><span>VC width</span><strong>&lt; 0.3 cm</strong></div>
+            <div class="ci"><span>PISA r</span><strong>≤ 0.5 cm</strong></div>
           </div>
           <div class="cutoff-col">
-            <div class="cutoff-col-head moderate">Moderate</div>
-            <div class="cutoff-item"><strong>EROA:</strong> 0.20–0.39 cm²</div>
-            <div class="cutoff-item"><strong>RVol:</strong> 30–44 mL</div>
-            <div class="cutoff-item"><strong>RF:</strong> 30–49%</div>
-            <div class="cutoff-item"><strong>VC width:</strong> 0.3–0.69 cm</div>
-            <div class="cutoff-item"><strong>PISA radius:</strong> 0.6–0.9 cm</div>
+            <div class="cutoff-head moderate">Moderate</div>
+            <div class="ci"><span>EROA</span><strong>0.20–0.39 cm²</strong></div>
+            <div class="ci"><span>RVol</span><strong>30–44 mL</strong></div>
+            <div class="ci"><span>RF</span><strong>30–49%</strong></div>
+            <div class="ci"><span>VC width</span><strong>0.3–0.69 cm</strong></div>
+            <div class="ci"><span>PISA r</span><strong>0.6–0.9 cm</strong></div>
           </div>
           <div class="cutoff-col">
-            <div class="cutoff-col-head severe">Severe / Massive</div>
-            <div class="cutoff-item"><strong>EROA:</strong> ≥ 0.40 cm²</div>
-            <div class="cutoff-item"><strong>RVol:</strong> ≥ 45 mL</div>
-            <div class="cutoff-item"><strong>RF:</strong> ≥ 50%</div>
-            <div class="cutoff-item"><strong>VC width:</strong> ≥ 0.70 cm</div>
-            <div class="cutoff-item"><strong>PISA radius:</strong> &gt; 0.9 cm</div>
+            <div class="cutoff-head severe">Severe (Massive)</div>
+            <div class="ci"><span>EROA</span><strong>0.40–0.59 cm²</strong></div>
+            <div class="ci"><span>RVol</span><strong>45–74 mL</strong></div>
+            <div class="ci"><span>RF</span><strong>≥ 50%</strong></div>
+            <div class="ci"><span>VC width</span><strong>≥ 0.70 cm</strong></div>
+            <div class="ci"><span>PISA r</span><strong>&gt; 0.9 cm</strong></div>
+          </div>
+          <div class="cutoff-col" style="background:#faf5ff;border-color:#d6bcfa;">
+            <div class="cutoff-head" style="color:#44337a;">Torrential</div>
+            <div class="ci"><span>EROA</span><strong>≥ 0.60 cm²</strong></div>
+            <div class="ci"><span>RVol</span><strong>≥ 75 mL</strong></div>
+            <div class="ci"><span>HV systolic reversal</span></div>
+            <div class="ci"><span>IVC dilated, non-collapsible</span></div>
+            <div class="ci"><span>RV dilation / dysfunction</span></div>
           </div>
         </div>
 
         <hr class="divider"/>
-        <p style="font-size:0.83rem; color:var(--text-muted); margin-bottom:12px;"><strong style="color:var(--text)">Massive & Torrential TR (ESC 2021 Classification)</strong></p>
-        <div class="cutoffs-grid" style="grid-template-columns:1fr 1fr;">
-          <div class="cutoff-col">
-            <div class="cutoff-col-head severe" style="font-size:0.68rem;">Massive TR</div>
-            <div class="cutoff-item"><strong>EROA</strong> ≥ 0.40 cm²</div>
-            <div class="cutoff-item"><strong>RVol</strong> ≥ 45 mL</div>
-            <div class="cutoff-item">Large central jet or eccentric jet</div>
-          </div>
-          <div class="cutoff-col">
-            <div class="cutoff-col-head severe" style="font-size:0.68rem;">Torrential TR</div>
-            <div class="cutoff-item"><strong>EROA</strong> ≥ 0.60 cm²</div>
-            <div class="cutoff-item"><strong>RVol</strong> ≥ 75 mL</div>
-            <div class="cutoff-item">Hepatic vein systolic flow reversal</div>
-          </div>
-        </div>
-
-        <hr class="divider"/>
-        <p style="font-size:0.83rem; color:var(--text-muted); margin-bottom:12px;"><strong style="color:var(--text)">RVSP Estimation from TR (Bernoulli)</strong></p>
-        <div class="formula-box" style="margin-top:0; border-left-color: var(--accent-tr)">
-          <div class="formula-text" style="color:var(--text-muted)">
-            <span style="color:var(--accent-tr)"><strong>RVSP</strong></span> = 4 × (TR Vmax)² + RAP<br/>
-            RAP estimate: 3 mmHg (IVC &lt;2.1cm + collapsible), 8 mmHg (indeterminate), 15 mmHg (IVC &gt;2.1cm + non-collapsible)<br/>
-            PASP ≈ RVSP (in absence of RVOTO)
-          </div>
-        </div>
-
-        <!-- RVSP mini-calculator -->
-        <div style="margin-top:16px; display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+        <p class="sec-h">RVSP Estimator (Modified Bernoulli)</p>
+        <p class="sec-sub">RVSP = 4 × TR Vmax² + RAP &nbsp;|&nbsp; PASP ≈ RVSP (no RVOTO)</p>
+        <div class="mini-calc">
           <div>
-            <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:4px;">TR Peak Velocity</label>
-            <div class="input-wrap"><input type="number" id="rvsp-vmax" placeholder="3.0" step="0.1" min="0" /><span class="unit">m/s</span></div>
+            <label>TR Peak Velocity</label>
+            <div class="input-row-inner"><input type="number" id="rvsp-vmax" placeholder="e.g. 3.0" step="0.1" min="0"/><span class="unit-label">m/s</span></div>
           </div>
           <div>
-            <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:4px;">RAP Estimate</label>
-            <div class="input-wrap">
-              <select id="rvsp-rap" style="padding:8px 10px; background:transparent; border:none; outline:none; color:var(--text); font-family:'DM Mono',monospace; font-size:0.9rem;">
-                <option value="3">3 mmHg (normal IVC)</option>
-                <option value="8" selected>8 mmHg (intermediate)</option>
-                <option value="15">15 mmHg (dilated IVC)</option>
+            <label>RAP Estimate</label>
+            <div class="input-row-inner">
+              <select id="rvsp-rap">
+                <option value="3">3 mmHg — IVC ≤2.1 cm, collapses &gt;50%</option>
+                <option value="8" selected>8 mmHg — Indeterminate</option>
+                <option value="15">15 mmHg — IVC &gt;2.1 cm, &lt;50% collapse</option>
               </select>
             </div>
           </div>
-          <button class="calc-btn tr-btn" style="width:auto; padding:9px 18px; margin-top:0;" onclick="calcRvsp()">Calc RVSP</button>
-          <div id="rvsp-result" style="font-family:'DM Mono',monospace; font-size:1.1rem; color:var(--accent-tr); min-width:100px;"></div>
+          <div style="flex:0;">
+            <label>&nbsp;</label>
+            <button class="btn-calc tr" style="width:auto;padding:8px 20px;margin-top:0;" onclick="calcRvsp()">▶ Calculate</button>
+          </div>
+          <div id="rvsp-result" style="padding-bottom:8px;"></div>
+        </div>
+
+        <hr class="divider"/>
+        <p class="sec-h">Intervention Thresholds (TR)</p>
+        <div class="cutoff-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="cutoff-col">
+            <div class="cutoff-head severe">Symptomatic Severe TR</div>
+            <div class="ci"><span>Massive/torrential TR with symptoms</span></div>
+            <div class="ci"><span>TV repair preferred over replacement</span></div>
+          </div>
+          <div class="cutoff-col">
+            <div class="cutoff-head moderate">Concomitant Surgery</div>
+            <div class="ci"><span>Moderate–severe TR at left heart surgery</span></div>
+            <div class="ci"><span>TV annular dilation</span><strong>≥ 40 mm</strong></div>
+          </div>
         </div>
       </div>
     </div>
-
   </div>
 
-  <!-- Disclaimer -->
   <div class="disclaimer">
-    ⚠️ <strong>Clinical Disclaimer:</strong> This calculator is intended as an educational and computational aid for trained echocardiographers and cardiologists. Results must be interpreted in conjunction with complete clinical and echocardiographic evaluation. Grading of valvular regurgitation requires integration of multiple parameters. Always follow current institutional and professional society guidelines.
+    ⚠️ <strong>Clinical Disclaimer:</strong> This tool is intended as an educational and computational aid for trained echocardiographers and cardiologists. Results must be interpreted in the context of a complete echocardiographic and clinical evaluation. Not a substitute for individual clinical judgment.
   </div>
-
-  <footer>
-    <p>MR & TR Quantification Calculator · Built for clinical echocardiography education</p>
-    <p style="margin-top:4px;">Formulas based on <strong>2017 AHA/ACC</strong> and <strong>2021 ESC/EACTS</strong> Valvular Heart Disease Guidelines</p>
-    <p style="margin-top:4px; color: var(--text-dim);">Not for direct patient management decisions without physician oversight</p>
-  </footer>
-
 </div>
 
+<footer>
+  MR &amp; TR Quantification Calculator &nbsp;·&nbsp; akhilnarangmd.github.io &nbsp;·&nbsp; Based on AHA/ACC 2017 &amp; ESC/EACTS 2021 Guidelines
+</footer>
+
 <script>
-  /* ===================== TAB SWITCHING ===================== */
+  /* ── Tab / Method switching ── */
   function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-    document.getElementById(`panel-${tab}`).classList.add('active');
+    document.querySelectorAll('.main-nav button').forEach((b,i) => b.classList.toggle('active',(tab==='mr'&&i===0)||(tab==='tr'&&i===1)));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+tab).classList.add('active');
   }
 
   function switchMethod(valve, method) {
-    const panel = document.getElementById(`panel-${valve}`);
-    panel.querySelectorAll('.method-tab').forEach(b => b.classList.remove('active'));
-    panel.querySelectorAll('.method-section').forEach(s => s.classList.remove('active'));
-    panel.querySelector(`[data-method="${method}"]`).classList.add('active');
-    document.getElementById(`${valve}-${method}`).classList.add('active');
+    const methodMap = {pisa:'pisa',cont:'continuity',qdop:'quantitative',ref:'severity'};
+    const panel = document.getElementById('panel-'+valve);
+    panel.querySelectorAll('.method-nav button').forEach(b =>
+      b.classList.toggle('active', b.textContent.toLowerCase().includes(methodMap[method]))
+    );
+    panel.querySelectorAll('.method-section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(valve+'-'+method).classList.add('active');
   }
 
-  /* ===================== SEVERITY HELPERS ===================== */
-  function mrSeverityEROA(v) {
-    if (v < 0.20) return { label: 'Mild', cls: 'sev-mild' };
-    if (v < 0.40) return { label: 'Moderate', cls: 'sev-moderate' };
-    return { label: 'Severe', cls: 'sev-severe' };
+  /* ── Severity ── */
+  const sev = {
+    mrEROA: v => v<0.20?{l:'Mild',c:'b-mild',s:'mild'}:v<0.40?{l:'Moderate',c:'b-moderate',s:'moderate'}:{l:'Severe',c:'b-severe',s:'severe'},
+    mrRVol: v => v<30?{l:'Mild',c:'b-mild',s:'mild'}:v<60?{l:'Moderate',c:'b-moderate',s:'moderate'}:{l:'Severe',c:'b-severe',s:'severe'},
+    mrRF:   v => v<30?{l:'Mild',c:'b-mild',s:'mild'}:v<50?{l:'Moderate',c:'b-moderate',s:'moderate'}:{l:'Severe',c:'b-severe',s:'severe'},
+    trEROA: v => v<0.20?{l:'Mild',c:'b-mild',s:'mild'}:v<0.40?{l:'Moderate',c:'b-moderate',s:'moderate'}:v<0.60?{l:'Severe',c:'b-severe',s:'severe'}:{l:'Torrential',c:'b-torrential',s:'torrential'},
+    trRVol: v => v<30?{l:'Mild',c:'b-mild',s:'mild'}:v<45?{l:'Moderate',c:'b-moderate',s:'moderate'}:v<75?{l:'Severe',c:'b-severe',s:'severe'}:{l:'Torrential',c:'b-torrential',s:'torrential'},
+    trRF:   v => v<30?{l:'Mild',c:'b-mild',s:'mild'}:v<50?{l:'Moderate',c:'b-moderate',s:'moderate'}:{l:'Severe',c:'b-severe',s:'severe'}
+  };
+
+  const ORDER=['torrential','severe','moderate','mild'];
+  function worst(arr) { for(const g of ORDER) if(arr.includes(g)) return g; return 'mild'; }
+
+  /* ── HTML builders ── */
+  function row(name, hint, val, unit, s) {
+    const pill = s ? `<span class="badge ${s.c}">${s.l}</span>` : `<span class="badge b-na">—</span>`;
+    return `<div class="result-row">
+      <div class="result-name"><strong>${name}</strong>${hint?`<span>${hint}</span>`:''}  </div>
+      <div class="result-val">${val}<span class="u">${unit}</span></div>
+      ${pill}</div>`;
   }
 
-  function mrSeverityRVol(v) {
-    if (v < 30) return { label: 'Mild', cls: 'sev-mild' };
-    if (v < 60) return { label: 'Moderate', cls: 'sev-moderate' };
-    return { label: 'Severe', cls: 'sev-severe' };
+  function sumBox(grades, note) {
+    const w=worst(grades);
+    const labels={mild:'Mild',moderate:'Moderate',severe:'Severe',torrential:'Torrential'};
+    return `<div class="summary ${w}"><div class="sum-label">Overall Assessment</div>
+      <div class="sum-grade g-${w}">${labels[w]}</div>
+      <div class="sum-note">${note}</div></div>`;
   }
 
-  function mrSeverityRF(v) {
-    if (v < 30) return { label: 'Mild', cls: 'sev-mild' };
-    if (v < 50) return { label: 'Moderate', cls: 'sev-moderate' };
-    return { label: 'Severe', cls: 'sev-severe' };
-  }
+  function warnMsg(msg) { return `<div class="info-note">⚠️ ${msg}</div>`; }
 
-  function trSeverityEROA(v) {
-    if (v < 0.20) return { label: 'Mild', cls: 'sev-mild' };
-    if (v < 0.40) return { label: 'Moderate', cls: 'sev-moderate' };
-    if (v < 0.60) return { label: 'Severe', cls: 'sev-severe' };
-    return { label: 'Torrential', cls: 'sev-severe' };
-  }
-
-  function trSeverityRVol(v) {
-    if (v < 30) return { label: 'Mild', cls: 'sev-mild' };
-    if (v < 45) return { label: 'Moderate', cls: 'sev-moderate' };
-    if (v < 75) return { label: 'Severe', cls: 'sev-severe' };
-    return { label: 'Torrential', cls: 'sev-severe' };
-  }
-
-  function trSeverityRF(v) {
-    if (v < 30) return { label: 'Mild', cls: 'sev-mild' };
-    if (v < 50) return { label: 'Moderate', cls: 'sev-moderate' };
-    return { label: 'Severe', cls: 'sev-severe' };
-  }
-
-  function overallGrade(grades) {
-    if (grades.includes('Torrential')) return { label: 'Torrential', cls: 'severe' };
-    if (grades.includes('Severe')) return { label: 'Severe', cls: 'severe' };
-    if (grades.includes('Moderate')) return { label: 'Moderate', cls: 'moderate' };
-    if (grades.length > 0) return { label: 'Mild', cls: 'mild' };
-    return { label: '—', cls: 'na' };
-  }
-
-  /* ===================== HTML BUILDERS ===================== */
-  function buildResultRow(name, sub, value, unit, sev) {
-    const pill = sev ? `<span class="severity-pill ${sev.cls}">${sev.label}</span>` : `<span class="severity-pill sev-na">—</span>`;
-    return `
-      <div class="result-row">
-        <div class="result-name"><strong>${name}</strong>${sub ? sub : ''}</div>
-        <div class="result-value">${value}<span class="val-unit">${unit}</span></div>
-        ${pill}
-      </div>`;
-  }
-
-  function buildSummaryBox(grade, note, accentColor) {
-    return `
-      <div class="summary-box ${grade.cls}" style="margin-top:20px;">
-        <div class="summary-label">Overall Assessment</div>
-        <div class="summary-grade ${grade.cls}">${grade.label}</div>
-        <div class="summary-note">${note}</div>
-      </div>`;
-  }
-
-  /* ===================== MR PISA ===================== */
+  /* ── MR PISA ── */
   function calcMrPisa() {
-    const r = parseFloat(document.getElementById('mr-pisa-r').value);
-    const va = parseFloat(document.getElementById('mr-pisa-va').value);
-    const vmax = parseFloat(document.getElementById('mr-pisa-vmax').value);
-    const vti = parseFloat(document.getElementById('mr-pisa-vti').value);
-
-    if (isNaN(r) || isNaN(va) || isNaN(vmax) || r <= 0 || va <= 0 || vmax <= 0) {
-      document.getElementById('mr-pisa-output').innerHTML = '<p style="color:var(--moderate); font-size:0.85rem; margin-top:16px;">⚠ Please enter valid values for r, Va, and Vmax.</p>';
-      return;
-    }
-
-    const flow = 2 * Math.PI * r * r * va; // cm³/s
-    const eroa = flow / (vmax * 100); // cm² (vmax in m/s → cm/s)
-    const rvol = !isNaN(vti) && vti > 0 ? eroa * vti : null;
-
-    const sevEROA = mrSeverityEROA(eroa);
-    const grades = [sevEROA.label];
-    let rvRow = '';
-    if (rvol !== null) {
-      const sevRV = mrSeverityRVol(rvol);
-      grades.push(sevRV.label);
-      rvRow = buildResultRow('Regurgitant Volume (RVol)', '<br/>EROA × MR VTI', rvol.toFixed(1), 'mL', sevRV);
-    }
-
-    const grade = overallGrade(grades);
-
-    document.getElementById('mr-pisa-output').innerHTML = `
-      ${buildResultRow('PISA Flow Rate', '<br/>2π × r² × Va', flow.toFixed(1), 'mL/s', null)}
-      ${buildResultRow('EROA', '<br/>Flow / Vmax', eroa.toFixed(3), 'cm²', sevEROA)}
-      ${rvRow}
-      ${buildSummaryBox(grade, 'Based on EROA' + (rvol ? ' and RVol' : '') + '. Integrate with vena contracta and clinical findings.', '#3b9eff')}
-    `;
+    const r=+document.getElementById('mr-pisa-r').value, va=+document.getElementById('mr-pisa-va').value,
+          vmax=+document.getElementById('mr-pisa-vmax').value, vti=+document.getElementById('mr-pisa-vti').value;
+    if(!r||!va||!vmax){document.getElementById('mr-pisa-out').innerHTML=warnMsg('Enter r, Va, and Vmax.');return;}
+    const flow=2*Math.PI*r*r*va, eroa=flow/(vmax*100), sE=sev.mrEROA(eroa), grades=[sE.s];
+    let rRow='';
+    if(vti>0){const rv=eroa*vti,sR=sev.mrRVol(rv);grades.push(sR.s);rRow=row('Regurgitant Volume','EROA × MR VTI',rv.toFixed(1),'mL',sR);}
+    document.getElementById('mr-pisa-out').innerHTML=
+      row('PISA Flow Rate','2π × r² × Va',flow.toFixed(1),'mL/s',null)+
+      row('EROA','Flow ÷ Vmax',eroa.toFixed(3),'cm²',sE)+rRow+
+      sumBox(grades,'Based on EROA'+(vti>0?' and RVol':'')+'. Integrate with vena contracta and clinical context.');
   }
+  function clearMrPisa(){['mr-pisa-r','mr-pisa-va','mr-pisa-vmax','mr-pisa-vti'].forEach(id=>document.getElementById(id).value='');document.getElementById('mr-pisa-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
 
-  function clearMrPisa() {
-    ['mr-pisa-r','mr-pisa-va','mr-pisa-vmax','mr-pisa-vti'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('mr-pisa-output').innerHTML = '<p class="empty-result" style="color:var(--text-dim); margin-top:20px;">Enter values and calculate →</p>';
-  }
-
-  /* ===================== MR Continuity ===================== */
+  /* ── MR Continuity ── */
   function calcMrCont() {
-    const lvotD = parseFloat(document.getElementById('mr-cont-lvotd').value);
-    const lvotVti = parseFloat(document.getElementById('mr-cont-lvotvti').value);
-    const mvD = parseFloat(document.getElementById('mr-cont-mvd').value);
-    const mvVti = parseFloat(document.getElementById('mr-cont-mvvti').value);
-
-    if ([lvotD,lvotVti,mvD,mvVti].some(v => isNaN(v) || v <= 0)) {
-      document.getElementById('mr-cont-output').innerHTML = '<p style="color:var(--moderate); font-size:0.85rem; margin-top:16px;">⚠ Please enter all values.</p>';
-      return;
-    }
-
-    const lvotCSA = Math.PI * Math.pow(lvotD / 2, 2);
-    const lvotSV = lvotCSA * lvotVti;
-    const mvCSA = Math.PI * Math.pow(mvD / 2, 2);
-    const mvSV = mvCSA * mvVti;
-    const rvol = mvSV - lvotSV;
-    const rf = (rvol / mvSV) * 100;
-
-    const sevRV = mrSeverityRVol(Math.max(0, rvol));
-    const sevRF = mrSeverityRF(Math.max(0, rf));
-    const grade = overallGrade([sevRV.label, sevRF.label]);
-
-    document.getElementById('mr-cont-output').innerHTML = `
-      ${buildResultRow('LVOT CSA', '', lvotCSA.toFixed(2), 'cm²', null)}
-      ${buildResultRow('LVOT Stroke Volume', '', lvotSV.toFixed(1), 'mL', null)}
-      ${buildResultRow('MV CSA', '', mvCSA.toFixed(2), 'cm²', null)}
-      ${buildResultRow('MV Stroke Volume', '', mvSV.toFixed(1), 'mL', null)}
-      ${buildResultRow('Regurgitant Volume (RVol)', '<br/>MV SV − LVOT SV', rvol.toFixed(1), 'mL', sevRV)}
-      ${buildResultRow('Regurgitant Fraction (RF)', '<br/>RVol / MV SV × 100', rf.toFixed(1), '%', sevRF)}
-      ${buildSummaryBox(grade, 'Continuity equation method. Assumes no AR or other regurgitation.', '#3b9eff')}
-    `;
+    const ld=+document.getElementById('mr-cont-lvotd').value, lv=+document.getElementById('mr-cont-lvotvti').value,
+          md=+document.getElementById('mr-cont-mvd').value, mv=+document.getElementById('mr-cont-mvvti').value;
+    if(!ld||!lv||!md||!mv){document.getElementById('mr-cont-out').innerHTML=warnMsg('Enter all four values.');return;}
+    const lc=Math.PI*Math.pow(ld/2,2),ls=lc*lv,mc=Math.PI*Math.pow(md/2,2),ms=mc*mv,rv=ms-ls,rf=(rv/ms)*100;
+    const sR=sev.mrRVol(Math.max(0,rv)),sF=sev.mrRF(Math.max(0,rf));
+    document.getElementById('mr-cont-out').innerHTML=
+      row('LVOT CSA','π × (LVOT d/2)²',lc.toFixed(2),'cm²',null)+row('LVOT Stroke Volume','LVOT CSA × LVOT VTI',ls.toFixed(1),'mL',null)+
+      row('MV CSA','π × (MV d/2)²',mc.toFixed(2),'cm²',null)+row('MV Stroke Volume','MV CSA × MV VTI',ms.toFixed(1),'mL',null)+
+      row('Regurgitant Volume','MV SV − LVOT SV',rv.toFixed(1),'mL',sR)+row('Regurgitant Fraction','RVol / MV SV × 100',rf.toFixed(1),'%',sF)+
+      sumBox([sR.s,sF.s],'Assumes no AR or other left-sided regurgitation.');
   }
+  function clearMrCont(){['mr-cont-lvotd','mr-cont-lvotvti','mr-cont-mvd','mr-cont-mvvti'].forEach(id=>document.getElementById(id).value='');document.getElementById('mr-cont-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
 
-  function clearMrCont() {
-    ['mr-cont-lvotd','mr-cont-lvotvti','mr-cont-mvd','mr-cont-mvvti'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('mr-cont-output').innerHTML = '<p class="empty-result" style="color:var(--text-dim); margin-top:20px;">Enter values and calculate →</p>';
-  }
-
-  /* ===================== MR Quantitative Doppler ===================== */
+  /* ── MR Quant Doppler ── */
   function calcMrQdop() {
-    const lvotD = parseFloat(document.getElementById('mr-qd-lvotd').value);
-    const lvotVti = parseFloat(document.getElementById('mr-qd-lvotvti').value);
-    const pvD = parseFloat(document.getElementById('mr-qd-pvd').value);
-    const pvVti = parseFloat(document.getElementById('mr-qd-pvvti').value);
-    const hr = parseFloat(document.getElementById('mr-qd-hr').value);
-
-    if ([lvotD,lvotVti,pvD,pvVti].some(v => isNaN(v) || v <= 0)) {
-      document.getElementById('mr-qd-output').innerHTML = '<p style="color:var(--moderate); font-size:0.85rem; margin-top:16px;">⚠ Please enter LVOT and PV values.</p>';
-      return;
-    }
-
-    const lvotCSA = Math.PI * Math.pow(lvotD / 2, 2);
-    const lvotSV = lvotCSA * lvotVti;
-    const pvCSA = Math.PI * Math.pow(pvD / 2, 2);
-    const pvSV = pvCSA * pvVti;
-    const rvol = lvotSV - pvSV;
-    const rf = (rvol / lvotSV) * 100;
-
-    const sevRV = mrSeverityRVol(Math.max(0, rvol));
-    const sevRF = mrSeverityRF(Math.max(0, rf));
-    const grade = overallGrade([sevRV.label, sevRF.label]);
-
-    let coRow = '';
-    if (!isNaN(hr) && hr > 0) {
-      const co = (lvotSV * hr) / 1000;
-      coRow = buildResultRow('Cardiac Output (LVOT)', '', co.toFixed(2), 'L/min', null);
-    }
-
-    document.getElementById('mr-qd-output').innerHTML = `
-      ${buildResultRow('LVOT SV (systemic)', '', lvotSV.toFixed(1), 'mL', null)}
-      ${buildResultRow('PV SV (pulmonary)', '', pvSV.toFixed(1), 'mL', null)}
-      ${coRow}
-      ${buildResultRow('Regurgitant Volume (RVol)', '<br/>LVOT SV − PV SV', rvol.toFixed(1), 'mL', sevRV)}
-      ${buildResultRow('Regurgitant Fraction (RF)', '<br/>RVol / LVOT SV × 100', rf.toFixed(1), '%', sevRF)}
-      ${buildSummaryBox(grade, 'Assumes no TR or other regurgitant lesion on the right side.', '#3b9eff')}
-    `;
+    const ld=+document.getElementById('mr-qd-lvotd').value, lv=+document.getElementById('mr-qd-lvotvti').value,
+          pd=+document.getElementById('mr-qd-pvd').value, pv=+document.getElementById('mr-qd-pvvti').value,
+          hr=+document.getElementById('mr-qd-hr').value;
+    if(!ld||!lv||!pd||!pv){document.getElementById('mr-qd-out').innerHTML=warnMsg('Enter LVOT and pulmonic valve values.');return;}
+    const ls=Math.PI*Math.pow(ld/2,2)*lv, ps=Math.PI*Math.pow(pd/2,2)*pv, rv=ls-ps, rf=(rv/ls)*100;
+    const sR=sev.mrRVol(Math.max(0,rv)), sF=sev.mrRF(Math.max(0,rf));
+    let co=hr>0?row('Cardiac Output (LVOT)','LVOT SV × HR / 1000',(ls*hr/1000).toFixed(2),'L/min',null):'';
+    document.getElementById('mr-qd-out').innerHTML=
+      row('LVOT Stroke Volume','(systemic forward)',ls.toFixed(1),'mL',null)+row('Pulmonic SV','(pulmonary forward)',ps.toFixed(1),'mL',null)+co+
+      row('Regurgitant Volume','LVOT SV − PV SV',rv.toFixed(1),'mL',sR)+row('Regurgitant Fraction','RVol / LVOT SV × 100',rf.toFixed(1),'%',sF)+
+      sumBox([sR.s,sF.s],'Assumes no significant TR or right-sided regurgitation.');
   }
+  function clearMrQdop(){['mr-qd-lvotd','mr-qd-lvotvti','mr-qd-pvd','mr-qd-pvvti','mr-qd-hr'].forEach(id=>document.getElementById(id).value='');document.getElementById('mr-qd-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
 
-  function clearMrQdop() {
-    ['mr-qd-lvotd','mr-qd-lvotvti','mr-qd-pvd','mr-qd-pvvti','mr-qd-hr'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('mr-qd-output').innerHTML = '<p class="empty-result" style="color:var(--text-dim); margin-top:20px;">Enter values and calculate →</p>';
-  }
-
-  /* ===================== TR PISA ===================== */
+  /* ── TR PISA ── */
   function calcTrPisa() {
-    const r = parseFloat(document.getElementById('tr-pisa-r').value);
-    const va = parseFloat(document.getElementById('tr-pisa-va').value);
-    const vmax = parseFloat(document.getElementById('tr-pisa-vmax').value);
-    const vti = parseFloat(document.getElementById('tr-pisa-vti').value);
-
-    if (isNaN(r) || isNaN(va) || isNaN(vmax) || r <= 0 || va <= 0 || vmax <= 0) {
-      document.getElementById('tr-pisa-output').innerHTML = '<p style="color:var(--moderate); font-size:0.85rem; margin-top:16px;">⚠ Please enter valid values for r, Va, and Vmax.</p>';
-      return;
-    }
-
-    const flow = 2 * Math.PI * r * r * va;
-    const eroa = flow / (vmax * 100);
-    const rvol = !isNaN(vti) && vti > 0 ? eroa * vti : null;
-
-    const sevEROA = trSeverityEROA(eroa);
-    const grades = [sevEROA.label];
-    let rvRow = '';
-    if (rvol !== null) {
-      const sevRV = trSeverityRVol(rvol);
-      grades.push(sevRV.label);
-      rvRow = buildResultRow('Regurgitant Volume (RVol)', '<br/>EROA × TR VTI', rvol.toFixed(1), 'mL', sevRV);
-    }
-
-    const grade = overallGrade(grades);
-
-    document.getElementById('tr-pisa-output').innerHTML = `
-      ${buildResultRow('PISA Flow Rate', '<br/>2π × r² × Va', flow.toFixed(1), 'mL/s', null)}
-      ${buildResultRow('EROA', '<br/>Flow / Vmax', eroa.toFixed(3), 'cm²', sevEROA)}
-      ${rvRow}
-      ${buildSummaryBox(grade, 'TR EROA. PISA best with Va shifted to ~28 cm/s (baseline shift). Integrate with IVC, hepatic veins.', '#22d3a0')}
-    `;
+    const r=+document.getElementById('tr-pisa-r').value, va=+document.getElementById('tr-pisa-va').value,
+          vmax=+document.getElementById('tr-pisa-vmax').value, vti=+document.getElementById('tr-pisa-vti').value;
+    if(!r||!va||!vmax){document.getElementById('tr-pisa-out').innerHTML=warnMsg('Enter r, Va, and Vmax.');return;}
+    const flow=2*Math.PI*r*r*va, eroa=flow/(vmax*100), sE=sev.trEROA(eroa), grades=[sE.s];
+    let rRow='';
+    if(vti>0){const rv=eroa*vti,sR=sev.trRVol(rv);grades.push(sR.s);rRow=row('Regurgitant Volume','EROA × TR VTI',rv.toFixed(1),'mL',sR);}
+    document.getElementById('tr-pisa-out').innerHTML=
+      row('PISA Flow Rate','2π × r² × Va',flow.toFixed(1),'mL/s',null)+
+      row('EROA','Flow ÷ Vmax',eroa.toFixed(3),'cm²',sE)+rRow+
+      sumBox(grades,'Integrate with IVC, hepatic vein flow, RV size and function.');
   }
+  function clearTrPisa(){['tr-pisa-r','tr-pisa-va','tr-pisa-vmax','tr-pisa-vti'].forEach(id=>document.getElementById(id).value='');document.getElementById('tr-pisa-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
 
-  function clearTrPisa() {
-    ['tr-pisa-r','tr-pisa-va','tr-pisa-vmax','tr-pisa-vti'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('tr-pisa-output').innerHTML = '<p class="empty-result" style="color:var(--text-dim); margin-top:20px;">Enter values and calculate →</p>';
-  }
-
-  /* ===================== TR Continuity ===================== */
+  /* ── TR Continuity ── */
   function calcTrCont() {
-    const tvD = parseFloat(document.getElementById('tr-cont-tvd').value);
-    const tvVti = parseFloat(document.getElementById('tr-cont-tvvti').value);
-    const pvD = parseFloat(document.getElementById('tr-cont-pvd').value);
-    const pvVti = parseFloat(document.getElementById('tr-cont-pvvti').value);
-
-    if ([tvD,tvVti,pvD,pvVti].some(v => isNaN(v) || v <= 0)) {
-      document.getElementById('tr-cont-output').innerHTML = '<p style="color:var(--moderate); font-size:0.85rem; margin-top:16px;">⚠ Please enter all values.</p>';
-      return;
-    }
-
-    const tvCSA = Math.PI * Math.pow(tvD / 2, 2);
-    const tvSV = tvCSA * tvVti;
-    const pvCSA = Math.PI * Math.pow(pvD / 2, 2);
-    const pvSV = pvCSA * pvVti;
-    const rvol = tvSV - pvSV;
-    const rf = (rvol / tvSV) * 100;
-
-    const sevRV = trSeverityRVol(Math.max(0, rvol));
-    const sevRF = trSeverityRF(Math.max(0, rf));
-    const grade = overallGrade([sevRV.label, sevRF.label]);
-
-    document.getElementById('tr-cont-output').innerHTML = `
-      ${buildResultRow('TV CSA', '', tvCSA.toFixed(2), 'cm²', null)}
-      ${buildResultRow('TV Stroke Volume', '', tvSV.toFixed(1), 'mL', null)}
-      ${buildResultRow('PV CSA', '', pvCSA.toFixed(2), 'cm²', null)}
-      ${buildResultRow('PV Stroke Volume', '', pvSV.toFixed(1), 'mL', null)}
-      ${buildResultRow('Regurgitant Volume (RVol)', '<br/>TV SV − PV SV', rvol.toFixed(1), 'mL', sevRV)}
-      ${buildResultRow('Regurgitant Fraction (RF)', '<br/>RVol / TV SV × 100', rf.toFixed(1), '%', sevRF)}
-      ${buildSummaryBox(grade, 'Right-heart continuity equation. Assumes no PR or other lesion.', '#22d3a0')}
-    `;
+    const td=+document.getElementById('tr-cont-tvd').value, tv=+document.getElementById('tr-cont-tvvti').value,
+          pd=+document.getElementById('tr-cont-pvd').value, pv=+document.getElementById('tr-cont-pvvti').value;
+    if(!td||!tv||!pd||!pv){document.getElementById('tr-cont-out').innerHTML=warnMsg('Enter all four values.');return;}
+    const tc=Math.PI*Math.pow(td/2,2),ts=tc*tv,pc=Math.PI*Math.pow(pd/2,2),ps=pc*pv,rv=ts-ps,rf=(rv/ts)*100;
+    const sR=sev.trRVol(Math.max(0,rv)),sF=sev.trRF(Math.max(0,rf));
+    document.getElementById('tr-cont-out').innerHTML=
+      row('TV CSA','π × (TV d/2)²',tc.toFixed(2),'cm²',null)+row('TV Stroke Volume','TV CSA × TV VTI',ts.toFixed(1),'mL',null)+
+      row('PV CSA','π × (PV d/2)²',pc.toFixed(2),'cm²',null)+row('PV Stroke Volume','PV CSA × PV VTI',ps.toFixed(1),'mL',null)+
+      row('Regurgitant Volume','TV SV − PV SV',rv.toFixed(1),'mL',sR)+row('Regurgitant Fraction','RVol / TV SV × 100',rf.toFixed(1),'%',sF)+
+      sumBox([sR.s,sF.s],'Assumes no PR. TV annular geometry is a source of error.');
   }
+  function clearTrCont(){['tr-cont-tvd','tr-cont-tvvti','tr-cont-pvd','tr-cont-pvvti'].forEach(id=>document.getElementById(id).value='');document.getElementById('tr-cont-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
 
-  function clearTrCont() {
-    ['tr-cont-tvd','tr-cont-tvvti','tr-cont-pvd','tr-cont-pvvti'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('tr-cont-output').innerHTML = '<p class="empty-result" style="color:var(--text-dim); margin-top:20px;">Enter values and calculate →</p>';
-  }
-
-  /* ===================== TR Quantitative Doppler ===================== */
+  /* ── TR Quant Doppler ── */
   function calcTrQdop() {
-    const rvotD = parseFloat(document.getElementById('tr-qd-rvotd').value);
-    const rvotVti = parseFloat(document.getElementById('tr-qd-rvotvti').value);
-    const tvD = parseFloat(document.getElementById('tr-qd-tvd').value);
-    const tvVti = parseFloat(document.getElementById('tr-qd-tvvti').value);
-    const hr = parseFloat(document.getElementById('tr-qd-hr').value);
-
-    if ([rvotD,rvotVti,tvD,tvVti].some(v => isNaN(v) || v <= 0)) {
-      document.getElementById('tr-qd-output').innerHTML = '<p style="color:var(--moderate); font-size:0.85rem; margin-top:16px;">⚠ Please enter all values.</p>';
-      return;
-    }
-
-    const rvotCSA = Math.PI * Math.pow(rvotD / 2, 2);
-    const rvotSV = rvotCSA * rvotVti;
-    const tvCSA = Math.PI * Math.pow(tvD / 2, 2);
-    const tvSV = tvCSA * tvVti;
-    const rvol = tvSV - rvotSV;
-    const rf = (rvol / tvSV) * 100;
-
-    const sevRV = trSeverityRVol(Math.max(0, rvol));
-    const sevRF = trSeverityRF(Math.max(0, rf));
-    const grade = overallGrade([sevRV.label, sevRF.label]);
-
-    let coRow = '';
-    if (!isNaN(hr) && hr > 0) {
-      const co = (rvotSV * hr) / 1000;
-      coRow = buildResultRow('Cardiac Output (RVOT)', '', co.toFixed(2), 'L/min', null);
-    }
-
-    document.getElementById('tr-qd-output').innerHTML = `
-      ${buildResultRow('TV SV (inflow)', '', tvSV.toFixed(1), 'mL', null)}
-      ${buildResultRow('RVOT SV (forward)', '', rvotSV.toFixed(1), 'mL', null)}
-      ${coRow}
-      ${buildResultRow('Regurgitant Volume (RVol)', '<br/>TV SV − RVOT SV', rvol.toFixed(1), 'mL', sevRV)}
-      ${buildResultRow('Regurgitant Fraction (RF)', '<br/>RVol / TV SV × 100', rf.toFixed(1), '%', sevRF)}
-      ${buildSummaryBox(grade, 'Assumes no PR. TV annulus assumes circular geometry (source of error).', '#22d3a0')}
-    `;
+    const rd=+document.getElementById('tr-qd-rvotd').value, rv2=+document.getElementById('tr-qd-rvotvti').value,
+          td=+document.getElementById('tr-qd-tvd').value, tv=+document.getElementById('tr-qd-tvvti').value,
+          hr=+document.getElementById('tr-qd-hr').value;
+    if(!rd||!rv2||!td||!tv){document.getElementById('tr-qd-out').innerHTML=warnMsg('Enter all four values.');return;}
+    const rs=Math.PI*Math.pow(rd/2,2)*rv2, ts=Math.PI*Math.pow(td/2,2)*tv, rv=ts-rs, rf=(rv/ts)*100;
+    const sR=sev.trRVol(Math.max(0,rv)), sF=sev.trRF(Math.max(0,rf));
+    let co=hr>0?row('Cardiac Output (RVOT)','RVOT SV × HR / 1000',(rs*hr/1000).toFixed(2),'L/min',null):'';
+    document.getElementById('tr-qd-out').innerHTML=
+      row('TV Stroke Volume','(inflow)',ts.toFixed(1),'mL',null)+row('RVOT Stroke Volume','(forward output)',rs.toFixed(1),'mL',null)+co+
+      row('Regurgitant Volume','TV SV − RVOT SV',rv.toFixed(1),'mL',sR)+row('Regurgitant Fraction','RVol / TV SV × 100',rf.toFixed(1),'%',sF)+
+      sumBox([sR.s,sF.s],'Assumes no PR. Integrate with clinical and other echo findings.');
   }
+  function clearTrQdop(){['tr-qd-rvotd','tr-qd-rvotvti','tr-qd-tvd','tr-qd-tvvti','tr-qd-hr'].forEach(id=>document.getElementById(id).value='');document.getElementById('tr-qd-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
 
-  function clearTrQdop() {
-    ['tr-qd-rvotd','tr-qd-rvotvti','tr-qd-tvd','tr-qd-tvvti','tr-qd-hr'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('tr-qd-output').innerHTML = '<p class="empty-result" style="color:var(--text-dim); margin-top:20px;">Enter values and calculate →</p>';
-  }
-
-  /* ===================== RVSP ===================== */
+  /* ── RVSP ── */
   function calcRvsp() {
-    const vmax = parseFloat(document.getElementById('rvsp-vmax').value);
-    const rap = parseFloat(document.getElementById('rvsp-rap').value);
-    if (isNaN(vmax) || vmax <= 0) { document.getElementById('rvsp-result').textContent = '—'; return; }
-    const rvsp = 4 * vmax * vmax + rap;
-    const el = document.getElementById('rvsp-result');
-    el.textContent = rvsp.toFixed(0) + ' mmHg';
-    el.style.color = rvsp > 50 ? 'var(--severe)' : rvsp > 35 ? 'var(--moderate)' : 'var(--mild)';
+    const v=+document.getElementById('rvsp-vmax').value, rap=+document.getElementById('rvsp-rap').value;
+    const el=document.getElementById('rvsp-result');
+    if(!v){el.textContent='—';return;}
+    const rvsp=4*v*v+rap;
+    el.textContent=rvsp.toFixed(0)+' mmHg';
+    el.style.color=rvsp>50?'#742a2a':rvsp>35?'#744210':'#22543d';
   }
 
-  /* ===================== ENTER KEY ===================== */
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      const active = document.querySelector('.tab-panel.active');
-      const methodActive = active.querySelector('.method-section.active');
-      const btn = methodActive ? methodActive.querySelector('.calc-btn') : null;
-      if (btn) btn.click();
+  /* Enter key */
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      const btn=document.querySelector('.tab-panel.active .method-section.active .btn-calc');
+      if(btn)btn.click();
     }
   });
 </script>
