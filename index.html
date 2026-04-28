@@ -275,7 +275,7 @@
             <span class="hint">CW Doppler MR envelope tracing</span>
             <div class="input-row-inner"><input type="number" id="mr-pisa-vti" placeholder="e.g. 150" step="1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-          <div class="formula">Flow (mL/s) = 2π × r² × Va<br/>EROA (cm²) &nbsp;= Flow ÷ Vmax<br/>RVol (mL) &nbsp;&nbsp;= EROA × MR VTI</div>
+          <div class="formula">Flow (mL/s) = 2π × r² × Va<br/>EROA (cm²) &nbsp;= Flow ÷ [Vmax (m/s) × 100]<br/>RVol (mL) &nbsp;&nbsp;= EROA × MR VTI</div>
           <button class="btn-calc" onclick="calcMrPisa()">▶ Calculate</button>
           <button class="btn-clear" onclick="clearMrPisa()">↺ Clear</button>
         </div>
@@ -332,8 +332,8 @@
       <div class="grid-2">
         <div class="card">
           <div class="card-title">Method</div>
-          <div class="card-heading">Quantitative Doppler — LVOT vs. Pulmonic Valve</div>
-          <div class="info-note">⚠️ Assumes no significant TR or right-sided regurgitation. Pulmonic annulus measurement is a source of error.</div>
+          <div class="card-heading">Quantitative Doppler — MV SV vs. LVOT SV</div>
+          <div class="info-note">⚠️ Uses left-heart inflow (MV) vs. outflow (LVOT) comparison. Assumes no significant AR. MV annulus assumed circular — a source of error. Same concept as continuity equation but both volumes derived from Doppler.</div>
 
           <div class="input-group">
             <label>LVOT Diameter</label>
@@ -344,26 +344,26 @@
             <div class="input-row-inner"><input type="number" id="mr-qd-lvotvti" placeholder="e.g. 22" step="0.1" min="0"/><span class="unit-label">cm</span></div>
           </div>
           <div class="input-group">
-            <label>Pulmonic Annular Diameter</label>
-            <span class="hint">PSAX or TEE</span>
-            <div class="input-row-inner"><input type="number" id="mr-qd-pvd" placeholder="e.g. 2.2" step="0.01" min="0"/><span class="unit-label">cm</span></div>
+            <label>Mitral Annular Diameter</label>
+            <span class="hint">Apical 4-chamber, early diastole</span>
+            <div class="input-row-inner"><input type="number" id="mr-qd-mvd" placeholder="e.g. 3.0" step="0.01" min="0"/><span class="unit-label">cm</span></div>
           </div>
           <div class="input-group">
-            <label>Pulmonic VTI</label>
-            <span class="hint">PWD at pulmonic valve</span>
-            <div class="input-row-inner"><input type="number" id="mr-qd-pvvti" placeholder="e.g. 18" step="0.1" min="0"/><span class="unit-label">cm</span></div>
+            <label>MV VTI</label>
+            <span class="hint">PWD at mitral annulus — full E+A envelope</span>
+            <div class="input-row-inner"><input type="number" id="mr-qd-mvvti" placeholder="e.g. 12" step="0.1" min="0"/><span class="unit-label">cm</span></div>
           </div>
           <div class="input-group">
             <label>Heart Rate <span style="font-weight:400;color:#718096">(optional — for CO)</span></label>
             <div class="input-row-inner"><input type="number" id="mr-qd-hr" placeholder="e.g. 70" step="1" min="30" max="200"/><span class="unit-label">bpm</span></div>
           </div>
-          <div class="formula">LVOT SV = π × (LVOT d/2)² × LVOT VTI<br/>PV SV &nbsp;&nbsp;&nbsp;= π × (PV d/2)² × PV VTI<br/>RVol &nbsp;&nbsp;&nbsp;&nbsp;= LVOT SV − PV SV<br/>RF (%) &nbsp;&nbsp;= RVol / LVOT SV × 100</div>
+          <div class="formula">MV SV &nbsp;&nbsp;&nbsp;&nbsp;= π × (MV d/2)² × MV VTI<br/>LVOT SV &nbsp;&nbsp;= π × (LVOT d/2)² × LVOT VTI<br/>RVol &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= MV SV − LVOT SV<br/>RF (%) &nbsp;&nbsp;&nbsp;&nbsp;= RVol / MV SV × 100</div>
           <button class="btn-calc" onclick="calcMrQdop()">▶ Calculate</button>
           <button class="btn-clear" onclick="clearMrQdop()">↺ Clear</button>
         </div>
         <div class="card">
           <div class="card-title">Results</div>
-          <div class="card-heading">Quantitative Doppler</div>
+          <div class="card-heading">Quantitative Doppler (MV vs. LVOT)</div>
           <div id="mr-qd-out"><div class="result-empty">Enter values and click Calculate</div></div>
         </div>
       </div>
@@ -457,7 +457,7 @@
             <span class="hint">CW Doppler TR envelope tracing</span>
             <div class="input-row-inner"><input type="number" id="tr-pisa-vti" placeholder="e.g. 100" step="1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-          <div class="formula tr">Flow (mL/s) = 2π × r² × Va<br/>EROA (cm²) &nbsp;= Flow ÷ Vmax<br/>RVol (mL) &nbsp;&nbsp;= EROA × TR VTI</div>
+          <div class="formula tr">Flow (mL/s) = 2π × r² × Va<br/>EROA (cm²) &nbsp;= Flow ÷ [Vmax (m/s) × 100]<br/>RVol (mL) &nbsp;&nbsp;= EROA × TR VTI</div>
           <button class="btn-calc tr" onclick="calcTrPisa()">▶ Calculate</button>
           <button class="btn-clear" onclick="clearTrPisa()">↺ Clear</button>
         </div>
@@ -555,10 +555,10 @@
     <div id="tr-ref" class="method-section">
       <div class="card">
         <div class="card-title">Reference</div>
-        <div class="card-heading">TR Severity Cutoffs — ESC 2021 &amp; AHA/ACC 2021</div>
-        <p class="sec-sub">ESC 2021 introduced Massive and Torrential categories. Integrate with IVC, hepatic vein flow, RV size and function.</p>
+        <div class="card-heading">TR Severity Cutoffs — Hahn/Zamorano Expanded Grading Framework</div>
+        <p class="sec-sub">Expanded 5-tier grading (Hahn, Zamorano et al.) beyond the standard mild/moderate/severe scheme. Integrate with IVC size, hepatic vein flow, RV size and function.</p>
 
-        <div class="cutoff-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="cutoff-grid" style="grid-template-columns:repeat(5,1fr);">
           <div class="cutoff-col">
             <div class="cutoff-head mild">Mild</div>
             <div class="ci"><span>EROA</span><strong>&lt; 0.20 cm²</strong></div>
@@ -576,16 +576,23 @@
             <div class="ci"><span>PISA r</span><strong>0.6–0.9 cm</strong></div>
           </div>
           <div class="cutoff-col">
-            <div class="cutoff-head severe">Severe (Massive)</div>
+            <div class="cutoff-head severe">Severe</div>
             <div class="ci"><span>EROA</span><strong>0.40–0.59 cm²</strong></div>
-            <div class="ci"><span>RVol</span><strong>45–74 mL</strong></div>
+            <div class="ci"><span>RVol</span><strong>45–59 mL</strong></div>
             <div class="ci"><span>RF</span><strong>≥ 50%</strong></div>
             <div class="ci"><span>VC width</span><strong>≥ 0.70 cm</strong></div>
             <div class="ci"><span>PISA r</span><strong>&gt; 0.9 cm</strong></div>
           </div>
+          <div class="cutoff-col" style="background:#fff5f5;border-color:#fc8181;">
+            <div class="cutoff-head" style="color:#742a2a;">Massive</div>
+            <div class="ci"><span>EROA</span><strong>0.60–0.79 cm²</strong></div>
+            <div class="ci"><span>RVol</span><strong>60–74 mL</strong></div>
+            <div class="ci"><span>HV systolic blunting</span></div>
+            <div class="ci"><span>IVC dilated</span></div>
+          </div>
           <div class="cutoff-col" style="background:#faf5ff;border-color:#d6bcfa;">
             <div class="cutoff-head" style="color:#44337a;">Torrential</div>
-            <div class="ci"><span>EROA</span><strong>≥ 0.60 cm²</strong></div>
+            <div class="ci"><span>EROA</span><strong>≥ 0.80 cm²</strong></div>
             <div class="ci"><span>RVol</span><strong>≥ 75 mL</strong></div>
             <div class="ci"><span>HV systolic reversal</span></div>
             <div class="ci"><span>IVC dilated, non-collapsible</span></div>
@@ -624,7 +631,7 @@
           <div class="cutoff-col">
             <div class="cutoff-head severe">Symptomatic Severe TR</div>
             <div class="ci"><span>Massive/torrential TR with symptoms</span></div>
-            <div class="ci"><span>TV repair preferred over replacement</span></div>
+            <div class="ci"><span>Surgical repair preferred over replacement when feasible</span></div>
           </div>
           <div class="cutoff-col">
             <div class="cutoff-head moderate">Concomitant Surgery</div>
@@ -668,8 +675,8 @@
     mrEROA: v => v<0.20?{l:'Mild',c:'b-mild',s:'mild'}:v<0.40?{l:'Moderate',c:'b-moderate',s:'moderate'}:{l:'Severe',c:'b-severe',s:'severe'},
     mrRVol: v => v<30?{l:'Mild',c:'b-mild',s:'mild'}:v<60?{l:'Moderate',c:'b-moderate',s:'moderate'}:{l:'Severe',c:'b-severe',s:'severe'},
     mrRF:   v => v<30?{l:'Mild',c:'b-mild',s:'mild'}:v<50?{l:'Moderate',c:'b-moderate',s:'moderate'}:{l:'Severe',c:'b-severe',s:'severe'},
-    trEROA: v => v<0.20?{l:'Mild',c:'b-mild',s:'mild'}:v<0.40?{l:'Moderate',c:'b-moderate',s:'moderate'}:v<0.60?{l:'Severe',c:'b-severe',s:'severe'}:{l:'Torrential',c:'b-torrential',s:'torrential'},
-    trRVol: v => v<30?{l:'Mild',c:'b-mild',s:'mild'}:v<45?{l:'Moderate',c:'b-moderate',s:'moderate'}:v<75?{l:'Severe',c:'b-severe',s:'severe'}:{l:'Torrential',c:'b-torrential',s:'torrential'},
+    trEROA: v => v<0.20?{l:'Mild',c:'b-mild',s:'mild'}:v<0.40?{l:'Moderate',c:'b-moderate',s:'moderate'}:v<0.60?{l:'Severe',c:'b-severe',s:'severe'}:v<0.80?{l:'Massive',c:'b-severe',s:'severe'}:{l:'Torrential',c:'b-torrential',s:'torrential'},
+    trRVol: v => v<30?{l:'Mild',c:'b-mild',s:'mild'}:v<45?{l:'Moderate',c:'b-moderate',s:'moderate'}:v<60?{l:'Severe',c:'b-severe',s:'severe'}:v<75?{l:'Massive',c:'b-severe',s:'severe'}:{l:'Torrential',c:'b-torrential',s:'torrential'},
     trRF:   v => v<30?{l:'Mild',c:'b-mild',s:'mild'}:v<50?{l:'Moderate',c:'b-moderate',s:'moderate'}:{l:'Severe',c:'b-severe',s:'severe'}
   };
 
@@ -728,18 +735,19 @@
   /* ── MR Quant Doppler ── */
   function calcMrQdop() {
     const ld=+document.getElementById('mr-qd-lvotd').value, lv=+document.getElementById('mr-qd-lvotvti').value,
-          pd=+document.getElementById('mr-qd-pvd').value, pv=+document.getElementById('mr-qd-pvvti').value,
+          md=+document.getElementById('mr-qd-mvd').value, mv=+document.getElementById('mr-qd-mvvti').value,
           hr=+document.getElementById('mr-qd-hr').value;
-    if(!ld||!lv||!pd||!pv){document.getElementById('mr-qd-out').innerHTML=warnMsg('Enter LVOT and pulmonic valve values.');return;}
-    const ls=Math.PI*Math.pow(ld/2,2)*lv, ps=Math.PI*Math.pow(pd/2,2)*pv, rv=ls-ps, rf=(rv/ls)*100;
+    if(!ld||!lv||!md||!mv){document.getElementById('mr-qd-out').innerHTML=warnMsg('Enter LVOT and MV values.');return;}
+    const ls=Math.PI*Math.pow(ld/2,2)*lv, ms=Math.PI*Math.pow(md/2,2)*mv, rv=ms-ls, rf=(rv/ms)*100;
     const sR=sev.mrRVol(Math.max(0,rv)), sF=sev.mrRF(Math.max(0,rf));
     let co=hr>0?row('Cardiac Output (LVOT)','LVOT SV × HR / 1000',(ls*hr/1000).toFixed(2),'L/min',null):'';
     document.getElementById('mr-qd-out').innerHTML=
-      row('LVOT Stroke Volume','(systemic forward)',ls.toFixed(1),'mL',null)+row('Pulmonic SV','(pulmonary forward)',ps.toFixed(1),'mL',null)+co+
-      row('Regurgitant Volume','LVOT SV − PV SV',rv.toFixed(1),'mL',sR)+row('Regurgitant Fraction','RVol / LVOT SV × 100',rf.toFixed(1),'%',sF)+
-      sumBox([sR.s,sF.s],'Assumes no significant TR or right-sided regurgitation.');
+      row('MV Stroke Volume','(inflow / total LV filling)',ms.toFixed(1),'mL',null)+
+      row('LVOT Stroke Volume','(systemic forward output)',ls.toFixed(1),'mL',null)+co+
+      row('Regurgitant Volume','MV SV − LVOT SV',rv.toFixed(1),'mL',sR)+row('Regurgitant Fraction','RVol / MV SV × 100',rf.toFixed(1),'%',sF)+
+      sumBox([sR.s,sF.s],'Left-heart Doppler comparison. Assumes no significant AR.');
   }
-  function clearMrQdop(){['mr-qd-lvotd','mr-qd-lvotvti','mr-qd-pvd','mr-qd-pvvti','mr-qd-hr'].forEach(id=>document.getElementById(id).value='');document.getElementById('mr-qd-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
+  function clearMrQdop(){['mr-qd-lvotd','mr-qd-lvotvti','mr-qd-mvd','mr-qd-mvvti','mr-qd-hr'].forEach(id=>document.getElementById(id).value='');document.getElementById('mr-qd-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
 
   /* ── TR PISA ── */
   function calcTrPisa() {
