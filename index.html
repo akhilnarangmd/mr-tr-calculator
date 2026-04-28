@@ -241,9 +241,8 @@
   <!-- ═══════════════ MR PANEL ═══════════════ -->
   <div id="panel-mr" class="tab-panel active">
     <div class="method-nav" id="mr-nav">
-      <button class="active" onclick="switchMethod('mr','pisa')">PISA / EROA</button>
-      <button onclick="switchMethod('mr','cont')">Continuity Equation</button>
-      <button onclick="switchMethod('mr','qdop')">Quantitative Doppler</button>
+      <button class="active" onclick="switchMethod('mr','pisa')">PISA / Flow Convergence</button>
+      <button onclick="switchMethod('mr','cont')">Continuity / Volumetric</button>
       <button onclick="switchMethod('mr','ref')">Severity Reference</button>
     </div>
 
@@ -252,7 +251,7 @@
       <div class="grid-2">
         <div class="card">
           <div class="card-title">Method</div>
-          <div class="card-heading">PISA / EROA — Mitral Regurgitation</div>
+          <div class="card-heading">PISA / Flow Convergence — Mitral Regurgitation</div>
           <div class="info-note">⚠️ Shift color baseline toward MR jet (typically 25–40 cm/s). Standard PISA assumes 180° hemisphere — apply angle correction for eccentric jets.</div>
 
           <div class="input-group">
@@ -281,7 +280,7 @@
         </div>
         <div class="card">
           <div class="card-title">Results</div>
-          <div class="card-heading">PISA / EROA</div>
+          <div class="card-heading">PISA / Flow Convergence</div>
           <div id="mr-pisa-out"><div class="result-empty">Enter values and click Calculate</div></div>
         </div>
       </div>
@@ -292,7 +291,7 @@
       <div class="grid-2">
         <div class="card">
           <div class="card-title">Method</div>
-          <div class="card-heading">Continuity Equation — MV SV vs. LVOT SV</div>
+          <div class="card-heading">Continuity / Volumetric — MV SV vs. LVOT SV</div>
           <div class="info-note">⚠️ Assumes no significant AR or other left-sided regurgitation. MV annulus assumed circular — potential source of error.</div>
 
           <div class="input-group">
@@ -315,56 +314,19 @@
             <span class="hint">PWD at mitral annulus — trace full E+A envelope</span>
             <div class="input-row-inner"><input type="number" id="mr-cont-mvvti" placeholder="e.g. 12" step="0.1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-          <div class="formula">LVOT SV = π × (LVOT d/2)² × LVOT VTI<br/>MV SV &nbsp;&nbsp;= π × (MV d/2)² × MV VTI<br/>RVol &nbsp;&nbsp;&nbsp;&nbsp;= MV SV − LVOT SV<br/>RF (%) &nbsp;&nbsp;= RVol / MV SV × 100</div>
+          <div class="input-group">
+            <label>MR VTI <span style="font-weight:400;color:#718096">(optional — for EROA)</span></label>
+            <span class="hint">CW Doppler MR jet envelope — same as PISA method</span>
+            <div class="input-row-inner"><input type="number" id="mr-cont-mrvti" placeholder="e.g. 150" step="1" min="0"/><span class="unit-label">cm</span></div>
+          </div>
+          <div class="formula">LVOT SV = π × (LVOT d/2)² × LVOT VTI<br/>MV SV &nbsp;&nbsp;= π × (MV d/2)² × MV VTI<br/>RVol &nbsp;&nbsp;&nbsp;&nbsp;= MV SV − LVOT SV<br/>EROA &nbsp;&nbsp;&nbsp;&nbsp;= RVol / MR VTI<br/>RF (%) &nbsp;&nbsp;= RVol / MV SV × 100</div>
           <button class="btn-calc" onclick="calcMrCont()">▶ Calculate</button>
           <button class="btn-clear" onclick="clearMrCont()">↺ Clear</button>
         </div>
         <div class="card">
           <div class="card-title">Results</div>
-          <div class="card-heading">Continuity Equation</div>
+          <div class="card-heading">Continuity / Volumetric</div>
           <div id="mr-cont-out"><div class="result-empty">Enter values and click Calculate</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- MR Quant Doppler -->
-    <div id="mr-qdop" class="method-section">
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-title">Method</div>
-          <div class="card-heading">Quantitative Doppler — MV SV vs. LVOT SV</div>
-          <div class="info-note">⚠️ Uses left-heart inflow (MV) vs. outflow (LVOT) comparison. Assumes no significant AR. MV annulus assumed circular — a source of error. Same concept as continuity equation but both volumes derived from Doppler.</div>
-
-          <div class="input-group">
-            <label>LVOT Diameter</label>
-            <div class="input-row-inner"><input type="number" id="mr-qd-lvotd" placeholder="e.g. 2.0" step="0.01" min="0"/><span class="unit-label">cm</span></div>
-          </div>
-          <div class="input-group">
-            <label>LVOT VTI</label>
-            <div class="input-row-inner"><input type="number" id="mr-qd-lvotvti" placeholder="e.g. 22" step="0.1" min="0"/><span class="unit-label">cm</span></div>
-          </div>
-          <div class="input-group">
-            <label>Mitral Annular Diameter</label>
-            <span class="hint">Apical 4-chamber, early diastole</span>
-            <div class="input-row-inner"><input type="number" id="mr-qd-mvd" placeholder="e.g. 3.0" step="0.01" min="0"/><span class="unit-label">cm</span></div>
-          </div>
-          <div class="input-group">
-            <label>MV VTI</label>
-            <span class="hint">PWD at mitral annulus — full E+A envelope</span>
-            <div class="input-row-inner"><input type="number" id="mr-qd-mvvti" placeholder="e.g. 12" step="0.1" min="0"/><span class="unit-label">cm</span></div>
-          </div>
-          <div class="input-group">
-            <label>Heart Rate <span style="font-weight:400;color:#718096">(optional — for CO)</span></label>
-            <div class="input-row-inner"><input type="number" id="mr-qd-hr" placeholder="e.g. 70" step="1" min="30" max="200"/><span class="unit-label">bpm</span></div>
-          </div>
-          <div class="formula">MV SV &nbsp;&nbsp;&nbsp;&nbsp;= π × (MV d/2)² × MV VTI<br/>LVOT SV &nbsp;&nbsp;= π × (LVOT d/2)² × LVOT VTI<br/>RVol &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= MV SV − LVOT SV<br/>RF (%) &nbsp;&nbsp;&nbsp;&nbsp;= RVol / MV SV × 100</div>
-          <button class="btn-calc" onclick="calcMrQdop()">▶ Calculate</button>
-          <button class="btn-clear" onclick="clearMrQdop()">↺ Clear</button>
-        </div>
-        <div class="card">
-          <div class="card-title">Results</div>
-          <div class="card-heading">Quantitative Doppler (MV vs. LVOT)</div>
-          <div id="mr-qd-out"><div class="result-empty">Enter values and click Calculate</div></div>
         </div>
       </div>
     </div>
@@ -424,9 +386,8 @@
   <!-- ═══════════════ TR PANEL ═══════════════ -->
   <div id="panel-tr" class="tab-panel">
     <div class="method-nav tr-nav" id="tr-nav">
-      <button class="active" onclick="switchMethod('tr','pisa')">PISA / EROA</button>
-      <button onclick="switchMethod('tr','cont')">Continuity Equation</button>
-      <button onclick="switchMethod('tr','qdop')">Quantitative Doppler</button>
+      <button class="active" onclick="switchMethod('tr','pisa')">PISA / Flow Convergence</button>
+      <button onclick="switchMethod('tr','cont')">Continuity / Volumetric</button>
       <button onclick="switchMethod('tr','ref')">Severity Reference</button>
     </div>
 
@@ -435,7 +396,7 @@
       <div class="grid-2">
         <div class="card">
           <div class="card-title">Method</div>
-          <div class="card-heading">PISA / EROA — Tricuspid Regurgitation</div>
+          <div class="card-heading">PISA / Flow Convergence — Tricuspid Regurgitation</div>
           <div class="info-note">⚠️ Shift baseline toward TR jet. Recommended Va ~28 cm/s for TR. PISA hemisphere may underestimate massive TR.</div>
 
           <div class="input-group">
@@ -463,7 +424,7 @@
         </div>
         <div class="card">
           <div class="card-title">Results</div>
-          <div class="card-heading">TR PISA / EROA</div>
+          <div class="card-heading">TR PISA / Flow Convergence</div>
           <div id="tr-pisa-out"><div class="result-empty">Enter values and click Calculate</div></div>
         </div>
       </div>
@@ -474,7 +435,7 @@
       <div class="grid-2">
         <div class="card">
           <div class="card-title">Method</div>
-          <div class="card-heading">Continuity Equation — TV SV vs. PV SV</div>
+          <div class="card-heading">Continuity / Volumetric — TV SV vs. RVOT SV</div>
           <div class="info-note">⚠️ Assumes no significant PR. TV annulus is elliptical — circular assumption is a source of error.</div>
 
           <div class="input-group">
@@ -488,65 +449,28 @@
             <div class="input-row-inner"><input type="number" id="tr-cont-tvvti" placeholder="e.g. 12" step="0.1" min="0"/><span class="unit-label">cm</span></div>
           </div>
           <div class="input-group">
-            <label>Pulmonic Annular Diameter</label>
-            <span class="hint">PSAX view</span>
-            <div class="input-row-inner"><input type="number" id="tr-cont-pvd" placeholder="e.g. 2.2" step="0.01" min="0"/><span class="unit-label">cm</span></div>
+            <label>RVOT Diameter</label>
+            <span class="hint">PSAX, at level of pulmonic valve</span>
+            <div class="input-row-inner"><input type="number" id="tr-cont-rvotd" placeholder="e.g. 2.2" step="0.01" min="0"/><span class="unit-label">cm</span></div>
           </div>
           <div class="input-group">
-            <label>Pulmonic VTI</label>
-            <span class="hint">PWD at pulmonic valve</span>
-            <div class="input-row-inner"><input type="number" id="tr-cont-pvvti" placeholder="e.g. 18" step="0.1" min="0"/><span class="unit-label">cm</span></div>
+            <label>RVOT VTI</label>
+            <span class="hint">PWD at RVOT / pulmonic valve level</span>
+            <div class="input-row-inner"><input type="number" id="tr-cont-rvotvti" placeholder="e.g. 18" step="0.1" min="0"/><span class="unit-label">cm</span></div>
           </div>
-          <div class="formula tr">TV SV &nbsp;= π × (TV d/2)² × TV VTI<br/>PV SV &nbsp;= π × (PV d/2)² × PV VTI<br/>RVol &nbsp;&nbsp;= TV SV − PV SV<br/>RF (%) = RVol / TV SV × 100</div>
+          <div class="input-group">
+            <label>TR VTI <span style="font-weight:400;color:#718096">(optional — for EROA)</span></label>
+            <span class="hint">CW Doppler TR jet envelope — same as PISA method</span>
+            <div class="input-row-inner"><input type="number" id="tr-cont-trvti" placeholder="e.g. 100" step="1" min="0"/><span class="unit-label">cm</span></div>
+          </div>
+          <div class="formula tr">TV SV &nbsp;&nbsp;&nbsp;= π × (TV d/2)² × TV VTI<br/>RVOT SV = π × (RVOT d/2)² × RVOT VTI<br/>RVol &nbsp;&nbsp;&nbsp;&nbsp;= TV SV − RVOT SV<br/>EROA &nbsp;&nbsp;&nbsp;&nbsp;= RVol / TR VTI<br/>RF (%) &nbsp;&nbsp;= RVol / TV SV × 100</div>
           <button class="btn-calc tr" onclick="calcTrCont()">▶ Calculate</button>
           <button class="btn-clear" onclick="clearTrCont()">↺ Clear</button>
         </div>
         <div class="card">
           <div class="card-title">Results</div>
-          <div class="card-heading">TR Continuity Equation</div>
+          <div class="card-heading">TR Continuity / Volumetric</div>
           <div id="tr-cont-out"><div class="result-empty">Enter values and click Calculate</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TR Quant Doppler -->
-    <div id="tr-qdop" class="method-section">
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-title">Method</div>
-          <div class="card-heading">Quantitative Doppler — TV vs. RVOT</div>
-          <div class="info-note">⚠️ Assumes no significant PR. RVOT diameter measured in PSAX at pulmonic valve level.</div>
-
-          <div class="input-group">
-            <label>RVOT Diameter</label>
-            <span class="hint">PSAX, at level of pulmonic valve</span>
-            <div class="input-row-inner"><input type="number" id="tr-qd-rvotd" placeholder="e.g. 2.2" step="0.01" min="0"/><span class="unit-label">cm</span></div>
-          </div>
-          <div class="input-group">
-            <label>RVOT VTI</label>
-            <span class="hint">PWD at RVOT / pulmonic valve</span>
-            <div class="input-row-inner"><input type="number" id="tr-qd-rvotvti" placeholder="e.g. 18" step="0.1" min="0"/><span class="unit-label">cm</span></div>
-          </div>
-          <div class="input-group">
-            <label>TV Annular Diameter</label>
-            <div class="input-row-inner"><input type="number" id="tr-qd-tvd" placeholder="e.g. 3.5" step="0.01" min="0"/><span class="unit-label">cm</span></div>
-          </div>
-          <div class="input-group">
-            <label>TV VTI</label>
-            <div class="input-row-inner"><input type="number" id="tr-qd-tvvti" placeholder="e.g. 12" step="0.1" min="0"/><span class="unit-label">cm</span></div>
-          </div>
-          <div class="input-group">
-            <label>Heart Rate <span style="font-weight:400;color:#718096">(optional — for CO)</span></label>
-            <div class="input-row-inner"><input type="number" id="tr-qd-hr" placeholder="e.g. 70" step="1" min="30" max="200"/><span class="unit-label">bpm</span></div>
-          </div>
-          <div class="formula tr">TV SV &nbsp;&nbsp;&nbsp;= π × (TV d/2)² × TV VTI<br/>RVOT SV = π × (RVOT d/2)² × RVOT VTI<br/>RVol &nbsp;&nbsp;&nbsp;&nbsp;= TV SV − RVOT SV<br/>RF (%) &nbsp;&nbsp;= RVol / TV SV × 100</div>
-          <button class="btn-calc tr" onclick="calcTrQdop()">▶ Calculate</button>
-          <button class="btn-clear" onclick="clearTrQdop()">↺ Clear</button>
-        </div>
-        <div class="card">
-          <div class="card-title">Results</div>
-          <div class="card-heading">TR Quantitative Doppler</div>
-          <div id="tr-qd-out"><div class="result-empty">Enter values and click Calculate</div></div>
         </div>
       </div>
     </div>
@@ -661,7 +585,7 @@
   }
 
   function switchMethod(valve, method) {
-    const methodMap = {pisa:'pisa',cont:'continuity',qdop:'quantitative',ref:'severity'};
+    const methodMap = {pisa:'pisa',cont:'continuity',ref:'severity'};
     const panel = document.getElementById('panel-'+valve);
     panel.querySelectorAll('.method-nav button').forEach(b =>
       b.classList.toggle('active', b.textContent.toLowerCase().includes(methodMap[method]))
@@ -720,34 +644,29 @@
   /* ── MR Continuity ── */
   function calcMrCont() {
     const ld=+document.getElementById('mr-cont-lvotd').value, lv=+document.getElementById('mr-cont-lvotvti').value,
-          md=+document.getElementById('mr-cont-mvd').value, mv=+document.getElementById('mr-cont-mvvti').value;
-    if(!ld||!lv||!md||!mv){document.getElementById('mr-cont-out').innerHTML=warnMsg('Enter all four values.');return;}
+          md=+document.getElementById('mr-cont-mvd').value, mv=+document.getElementById('mr-cont-mvvti').value,
+          mrvti=+document.getElementById('mr-cont-mrvti').value;
+    if(!ld||!lv||!md||!mv){document.getElementById('mr-cont-out').innerHTML=warnMsg('Enter LVOT and MV values.');return;}
     const lc=Math.PI*Math.pow(ld/2,2),ls=lc*lv,mc=Math.PI*Math.pow(md/2,2),ms=mc*mv,rv=ms-ls,rf=(rv/ms)*100;
     const sR=sev.mrRVol(Math.max(0,rv)),sF=sev.mrRF(Math.max(0,rf));
+    let eroaRow='';
+    if(mrvti>0){
+      const eroa=rv/mrvti;
+      const sE=sev.mrEROA(Math.max(0,eroa));
+      eroaRow=row('EROA','RVol / MR VTI',eroa.toFixed(3),'cm²',sE);
+    }
     document.getElementById('mr-cont-out').innerHTML=
-      row('LVOT CSA','π × (LVOT d/2)²',lc.toFixed(2),'cm²',null)+row('LVOT Stroke Volume','LVOT CSA × LVOT VTI',ls.toFixed(1),'mL',null)+
-      row('MV CSA','π × (MV d/2)²',mc.toFixed(2),'cm²',null)+row('MV Stroke Volume','MV CSA × MV VTI',ms.toFixed(1),'mL',null)+
-      row('Regurgitant Volume','MV SV − LVOT SV',rv.toFixed(1),'mL',sR)+row('Regurgitant Fraction','RVol / MV SV × 100',rf.toFixed(1),'%',sF)+
-      sumBox([sR.s,sF.s],'Assumes no AR or other left-sided regurgitation.');
+      row('LVOT CSA','π × (LVOT d/2)²',lc.toFixed(2),'cm²',null)+
+      row('LVOT Stroke Volume','LVOT CSA × LVOT VTI',ls.toFixed(1),'mL',null)+
+      row('MV CSA','π × (MV d/2)²',mc.toFixed(2),'cm²',null)+
+      row('MV Stroke Volume','MV CSA × MV VTI',ms.toFixed(1),'mL',null)+
+      row('Regurgitant Volume','MV SV − LVOT SV',rv.toFixed(1),'mL',sR)+
+      eroaRow+
+      row('Regurgitant Fraction','RVol / MV SV × 100',rf.toFixed(1),'%',sF)+
+      sumBox([sR.s,sF.s],'Assumes no AR. EROA cross-checks PISA method when MR VTI entered.');
   }
-  function clearMrCont(){['mr-cont-lvotd','mr-cont-lvotvti','mr-cont-mvd','mr-cont-mvvti'].forEach(id=>document.getElementById(id).value='');document.getElementById('mr-cont-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
+  function clearMrCont(){['mr-cont-lvotd','mr-cont-lvotvti','mr-cont-mvd','mr-cont-mvvti','mr-cont-mrvti'].forEach(id=>document.getElementById(id).value='');document.getElementById('mr-cont-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
 
-  /* ── MR Quant Doppler ── */
-  function calcMrQdop() {
-    const ld=+document.getElementById('mr-qd-lvotd').value, lv=+document.getElementById('mr-qd-lvotvti').value,
-          md=+document.getElementById('mr-qd-mvd').value, mv=+document.getElementById('mr-qd-mvvti').value,
-          hr=+document.getElementById('mr-qd-hr').value;
-    if(!ld||!lv||!md||!mv){document.getElementById('mr-qd-out').innerHTML=warnMsg('Enter LVOT and MV values.');return;}
-    const ls=Math.PI*Math.pow(ld/2,2)*lv, ms=Math.PI*Math.pow(md/2,2)*mv, rv=ms-ls, rf=(rv/ms)*100;
-    const sR=sev.mrRVol(Math.max(0,rv)), sF=sev.mrRF(Math.max(0,rf));
-    let co=hr>0?row('Cardiac Output (LVOT)','LVOT SV × HR / 1000',(ls*hr/1000).toFixed(2),'L/min',null):'';
-    document.getElementById('mr-qd-out').innerHTML=
-      row('MV Stroke Volume','(inflow / total LV filling)',ms.toFixed(1),'mL',null)+
-      row('LVOT Stroke Volume','(systemic forward output)',ls.toFixed(1),'mL',null)+co+
-      row('Regurgitant Volume','MV SV − LVOT SV',rv.toFixed(1),'mL',sR)+row('Regurgitant Fraction','RVol / MV SV × 100',rf.toFixed(1),'%',sF)+
-      sumBox([sR.s,sF.s],'Left-heart Doppler comparison. Assumes no significant AR.');
-  }
-  function clearMrQdop(){['mr-qd-lvotd','mr-qd-lvotvti','mr-qd-mvd','mr-qd-mvvti','mr-qd-hr'].forEach(id=>document.getElementById(id).value='');document.getElementById('mr-qd-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
 
   /* ── TR PISA ── */
   function calcTrPisa() {
@@ -767,33 +686,29 @@
   /* ── TR Continuity ── */
   function calcTrCont() {
     const td=+document.getElementById('tr-cont-tvd').value, tv=+document.getElementById('tr-cont-tvvti').value,
-          pd=+document.getElementById('tr-cont-pvd').value, pv=+document.getElementById('tr-cont-pvvti').value;
-    if(!td||!tv||!pd||!pv){document.getElementById('tr-cont-out').innerHTML=warnMsg('Enter all four values.');return;}
-    const tc=Math.PI*Math.pow(td/2,2),ts=tc*tv,pc=Math.PI*Math.pow(pd/2,2),ps=pc*pv,rv=ts-ps,rf=(rv/ts)*100;
+          rd=+document.getElementById('tr-cont-rvotd').value, rv2=+document.getElementById('tr-cont-rvotvti').value,
+          trvti=+document.getElementById('tr-cont-trvti').value;
+    if(!td||!tv||!rd||!rv2){document.getElementById('tr-cont-out').innerHTML=warnMsg('Enter TV and RVOT values.');return;}
+    const tc=Math.PI*Math.pow(td/2,2),ts=tc*tv,rc=Math.PI*Math.pow(rd/2,2),rs=rc*rv2,rv=ts-rs,rf=(rv/ts)*100;
     const sR=sev.trRVol(Math.max(0,rv)),sF=sev.trRF(Math.max(0,rf));
+    let eroaRow='';
+    if(trvti>0){
+      const eroa=rv/trvti;
+      const sE=sev.trEROA(Math.max(0,eroa));
+      eroaRow=row('EROA','RVol / TR VTI',eroa.toFixed(3),'cm²',sE);
+    }
     document.getElementById('tr-cont-out').innerHTML=
-      row('TV CSA','π × (TV d/2)²',tc.toFixed(2),'cm²',null)+row('TV Stroke Volume','TV CSA × TV VTI',ts.toFixed(1),'mL',null)+
-      row('PV CSA','π × (PV d/2)²',pc.toFixed(2),'cm²',null)+row('PV Stroke Volume','PV CSA × PV VTI',ps.toFixed(1),'mL',null)+
-      row('Regurgitant Volume','TV SV − PV SV',rv.toFixed(1),'mL',sR)+row('Regurgitant Fraction','RVol / TV SV × 100',rf.toFixed(1),'%',sF)+
-      sumBox([sR.s,sF.s],'Assumes no PR. TV annular geometry is a source of error.');
+      row('TV CSA','π × (TV d/2)²',tc.toFixed(2),'cm²',null)+
+      row('TV Stroke Volume','TV CSA × TV VTI',ts.toFixed(1),'mL',null)+
+      row('RVOT CSA','π × (RVOT d/2)²',rc.toFixed(2),'cm²',null)+
+      row('RVOT Stroke Volume','RVOT CSA × RVOT VTI',rs.toFixed(1),'mL',null)+
+      row('Regurgitant Volume','TV SV − RVOT SV',rv.toFixed(1),'mL',sR)+
+      eroaRow+
+      row('Regurgitant Fraction','RVol / TV SV × 100',rf.toFixed(1),'%',sF)+
+      sumBox([sR.s,sF.s],'Assumes no PR. EROA cross-checks PISA method when TR VTI entered.');
   }
-  function clearTrCont(){['tr-cont-tvd','tr-cont-tvvti','tr-cont-pvd','tr-cont-pvvti'].forEach(id=>document.getElementById(id).value='');document.getElementById('tr-cont-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
+  function clearTrCont(){['tr-cont-tvd','tr-cont-tvvti','tr-cont-rvotd','tr-cont-rvotvti','tr-cont-trvti'].forEach(id=>document.getElementById(id).value='');document.getElementById('tr-cont-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
 
-  /* ── TR Quant Doppler ── */
-  function calcTrQdop() {
-    const rd=+document.getElementById('tr-qd-rvotd').value, rv2=+document.getElementById('tr-qd-rvotvti').value,
-          td=+document.getElementById('tr-qd-tvd').value, tv=+document.getElementById('tr-qd-tvvti').value,
-          hr=+document.getElementById('tr-qd-hr').value;
-    if(!rd||!rv2||!td||!tv){document.getElementById('tr-qd-out').innerHTML=warnMsg('Enter all four values.');return;}
-    const rs=Math.PI*Math.pow(rd/2,2)*rv2, ts=Math.PI*Math.pow(td/2,2)*tv, rv=ts-rs, rf=(rv/ts)*100;
-    const sR=sev.trRVol(Math.max(0,rv)), sF=sev.trRF(Math.max(0,rf));
-    let co=hr>0?row('Cardiac Output (RVOT)','RVOT SV × HR / 1000',(rs*hr/1000).toFixed(2),'L/min',null):'';
-    document.getElementById('tr-qd-out').innerHTML=
-      row('TV Stroke Volume','(inflow)',ts.toFixed(1),'mL',null)+row('RVOT Stroke Volume','(forward output)',rs.toFixed(1),'mL',null)+co+
-      row('Regurgitant Volume','TV SV − RVOT SV',rv.toFixed(1),'mL',sR)+row('Regurgitant Fraction','RVol / TV SV × 100',rf.toFixed(1),'%',sF)+
-      sumBox([sR.s,sF.s],'Assumes no PR. Integrate with clinical and other echo findings.');
-  }
-  function clearTrQdop(){['tr-qd-rvotd','tr-qd-rvotvti','tr-qd-tvd','tr-qd-tvvti','tr-qd-hr'].forEach(id=>document.getElementById(id).value='');document.getElementById('tr-qd-out').innerHTML='<div class="result-empty">Enter values and click Calculate</div>';}
 
   /* ── RVSP ── */
   function calcRvsp() {
