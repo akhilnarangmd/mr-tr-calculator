@@ -21,20 +21,20 @@
     }
     header .icon { font-size: 2rem; margin-bottom: 6px; }
     header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
-    header p { font-size: 0.85rem; opacity: 0.85; }
+    
 
     .main-nav {
       background: white; border-bottom: 2px solid #e2e8f0;
       display: flex; justify-content: center; overflow-x: auto;
     }
     .main-nav button {
-      padding: 14px 28px; border: none; background: transparent;
-      font-size: 0.88rem; font-weight: 600; color: #718096;
+      padding: 16px 36px; border: none; background: transparent;
+      font-size: 1rem; font-weight: 700; color: #a0aec0; letter-spacing: 0.01em;
       cursor: pointer; white-space: nowrap;
       border-bottom: 3px solid transparent; margin-bottom: -2px;
       transition: all 0.15s;
     }
-    .main-nav button.active { color: #2b6cb0; border-bottom-color: #2b6cb0; }
+    .main-nav button.active { color: #1a365d; border-bottom-color: #2b6cb0; border-bottom-width: 3px; }
     .main-nav button:hover:not(.active) { color: #4a5568; background: #f7fafc; }
 
     .content { max-width: 1000px; margin: 0 auto; padding: 24px 16px 60px; }
@@ -223,7 +223,6 @@
 <header>
   <div class="icon">🫀</div>
   <h1>MR & TR Quantification Calculator</h1>
-  <p>EROA · Regurgitant Volume · Regurgitant Fraction · Severity Grading</p>
 </header>
 
 <nav class="main-nav">
